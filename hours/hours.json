@@ -1,0 +1,31 @@
+{
+    "hourlyWage": 130,
+    "hours": [
+        {
+            "date": "2.3.2020",
+            "timeStart": "13:30",
+            "timeEnd":  "21:30"
+        },
+        {
+            "date": "4.3.2020",
+            "timeStart": "17:00",
+            "timeEnd":  "19:30"
+        },
+        {
+            "date": "9.3.2020",
+            "timeStart": "14:00",
+            "timeEnd":  "20:10"
+        },
+        {
+            "date": "25.3.2020",
+            "timeStart": "17:00",
+            "timeEnd":  "20:10"
+        }
+    ],
+    "extra": [
+       
+    ]
+}
+
+
+

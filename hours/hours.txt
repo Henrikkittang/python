@@ -1,0 +1,7 @@
+Dato: 2.3.2020, Tidspunkt: 13:30-21:30, Antall timer: 8.0, Lønn: 1040.0kr
+Dato: 4.3.2020, Tidspunkt: 17:00-19:30, Antall timer: 2.501, Lønn: 325.13kr
+Dato: 9.3.2020, Tidspunkt: 14:00-20:10, Antall timer: 6.167, Lønn: 801.71kr
+Dato: 25.3.2020, Tidspunkt: 17:00-20:10, Antall timer: 3.167, Lønn: 411.71kr
+
+
+Totalt antall timer: 19.84, Total lønn: 2578.55kr medregnet bonus og helligdager

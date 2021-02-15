@@ -6,9 +6,10 @@ pygame.init()
 pygame.display.set_caption("Game of life")
 clock = pygame.time.Clock()
 
-WIDTH = 600
+WIDTH = 800
 HEIGTH = 600
 SCL = 5
+
 
 class Grid():
     def __init__(self):
@@ -22,17 +23,17 @@ class Grid():
                     self.world.add( (x, y)  )
                 
     def next_gen(self):
-        to_consider = set( )
+        to_consider = []
         for pos in self.world:
-            to_consider.add((pos[0]-1, pos[1]))
-            to_consider.add((pos[0]+1, pos[1]))
-            to_consider.add((pos[0], pos[1]-1))
-            to_consider.add((pos[0], pos[1]+1))
-            to_consider.add((pos[0], pos[1]))
-            to_consider.add((pos[0]-1, pos[1]-1))
-            to_consider.add((pos[0]-1, pos[1]+1))
-            to_consider.add((pos[0]+1, pos[1]-1))
-            to_consider.add((pos[0]+1, pos[1]+1))
+            to_consider.append((pos[0]-1, pos[1]))
+            to_consider.append((pos[0]+1, pos[1]))
+            to_consider.append((pos[0], pos[1]-1))
+            to_consider.append((pos[0], pos[1]+1))
+            to_consider.append((pos[0], pos[1]))
+            to_consider.append((pos[0]-1, pos[1]-1))
+            to_consider.append((pos[0]-1, pos[1]+1))
+            to_consider.append((pos[0]+1, pos[1]-1))
+            to_consider.append((pos[0]+1, pos[1]+1))
 
         nexster = set()
         for pos in to_consider:
@@ -61,7 +62,7 @@ class Grid():
                 nexster.add(pos)
             if pos not in self.world and neighbour_count == 3:
                 nexster.add(pos)
-
+                
         self.world = nexster
 
 
@@ -73,10 +74,10 @@ class Grid():
         elif self.shader > 255 and self.shader < 510:
             color = (510-self.shader, self.shader-256, 0)
         elif self.shader > 510:
-            color = (0, 766-self.shader, self.shader - 510)
+            color = (0, 768-self.shader, self.shader - 510)
 
         self.shader += 1;
-        self.shader %= 764
+        self.shader %= 768
         for pos in self.world:
             pygame.draw.rect(wn, color, (pos[0]*SCL, pos[1]*SCL, SCL, SCL))
 

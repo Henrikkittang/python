@@ -22,6 +22,8 @@ def something():
     for _ in range(100000):
         arr.reverse()
 
+
+
 if __name__ == '__main__':
     s = time.time()
 

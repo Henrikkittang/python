@@ -1,0 +1,6 @@
+Numba / numpy
+Cython
+C++ extensions
+Multi-threading/proccessing
+Memory reservation
+

@@ -1,0 +1,22 @@
+
+body{
+    text-align: center;
+    
+    background-image: url('images/background.jpg');
+    height: 200px;
+    margin: 2px 2px 2px 2px;
+
+    font-family: Georgia;
+}
+
+
+header{
+    text-align: center;
+    
+    background-image: url('images/background.jpg');
+    height: 200px;
+    margin: 2px 2px 2px 2px;
+
+    font-family: Georgia;
+}
+

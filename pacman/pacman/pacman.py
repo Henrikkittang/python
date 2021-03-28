@@ -2,46 +2,77 @@ from layout.layout import Layout
 import pygame
 pygame.init()
 
-
 class Pacman(object):
     def __init__(self, x, y, length):
         self.x = x
         self.y = y
-        self.length = length-2
+        self.length = length-5
         self.dir = [0, 0]
+        self.speed = 150
 
     def draw(self, wn):
         pygame.draw.rect(wn, (255, 255, 0), (self.x, self.y, self.length, self.length))
 
-    def move(self, layout):
+    def _nextTileIsFree(self, xDir: int, yDir: int, layout: Layout) -> bool:
+        corners = (
+            (self.x, self.y), # Top left
+            (self.x+self.length, self.y), # Top right
+            (self.x, self.y+self.length), # Bottom left
+            (self.x+self.length, self.y+self.length) # Bottom right
+        )
+        
+        for corner in corners:
+            row, column = self.getGridPos(corner[0], corner[1], layout.getSql())
+            row += xDir
+            column += yDir
+            if layout.isWall(row, column):
+                return False
+        return True
+
+    def move(self, layout, dt: float) -> None:
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_DOWN]:
+        if keys[pygame.K_DOWN] and self._nextTileIsFree(0, 1, layout):
             self.dir = [0, 1]
-        elif keys[pygame.K_UP]:
+        elif keys[pygame.K_UP] and self._nextTileIsFree(0, -1, layout):
             self.dir = [0, -1]
-        elif keys[pygame.K_RIGHT]:
+        elif keys[pygame.K_RIGHT] and self._nextTileIsFree(1, 0, layout):
             self.dir = [1, 0]
-        elif keys[pygame.K_LEFT]:
+        elif keys[pygame.K_LEFT] and self._nextTileIsFree(-1, 0, layout):
             self.dir = [-1, 0]
 
-        self.checkColliding(layout)
+        self.x += self.dir[0] * self.speed * dt
+        self.y += self.dir[1] * self.speed * dt
 
-        self.x += self.dir[0]
-        self.y += self.dir[1]
+    def getGridPos(self, x: float, y: float, sql: int) -> list:
+        return (int(x//sql), int(y//sql))
 
-
-    def checkColliding(self, layout):
+    def checkColliding(self, layout: Layout) -> None:
         corners = [
-            (self.x, self.y),
-            (self.x+self.length, self.y),
-            (self.x, self.y+self.length),
-            (self.x+self.length, self.y+self.length)
+            (self.x, self.y), # Top left
+            (self.x+self.length, self.y), # Top right
+            (self.x, self.y+self.length), # Bottom left
+            (self.x+self.length, self.y+self.length) # Bottom right
         ]
 
         for corner in corners:
-            row, column = (corner[0]+self.dir[0])//layout.sql, (corner[1]+self.dir[1])//layout.sql
-            if layout.walls[column][row] == 1:
+            row, column = self.getGridPos(corner[0], corner[1], layout.getSql())
+            if layout.isWall(row, column): # Detection
+
+                # Resolution
+                if self.dir[0] == 1:
+                    wallPixelPosX = int(row * layout.getSql()) 
+                    self.x = wallPixelPosX - self.length   - 0.01
+                elif self.dir[0] == -1:
+                    wallPixelPosX = int(row * layout.getSql()) 
+                    self.x = wallPixelPosX + layout.getSql() + 0.01
+                elif self.dir[1] == 1:
+                    wallPixelPosX = int(column * layout.getSql()) 
+                    self.y = wallPixelPosX - self.length  - 0.01
+                elif self.dir[1] == -1:
+                    wallPixelPosY = int(column * layout.getSql()) 
+                    self.y = wallPixelPosY + layout.getSql() + 0.01
+
                 self.dir = [0, 0]
                 break
         

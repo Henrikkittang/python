@@ -5,28 +5,29 @@ import pygame
 pygame.init()
 
 
-def main():
+if __name__ == '__main__':
+    clock = pygame.time.Clock()
     layout = Layout()
-    window = pygame.display.set_mode((layout.width, layout.height))
-    pacman = Pacman(125, 100, layout.sql)
-    blinky = Blinky(350, 250, layout.sql)
+    window = pygame.display.set_mode((layout.getWidth(), layout.getHeight()))
+    pacman = Pacman(125, 100, layout.getSql())
+    blinky = Blinky(350, 250, layout.getSql())
 
-   
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
 
         window.fill((0, 0, 0))
-        
+        dt = clock.tick() / 1000
+
         layout.draw(window)
         
-        pacman.move(layout)
+        pacman.move(layout, dt)
+        pacman.checkColliding(layout)
         pacman.draw(window)
 
-        blinky.move(layout, (pacman.x, pacman.y))
+        blinky.move(layout, (pacman.x, pacman.y), dt)
         blinky.draw(window)
         
 
         pygame.display.update()
-main()

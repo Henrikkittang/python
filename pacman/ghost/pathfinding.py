@@ -12,12 +12,12 @@ class Node(object):
     def __lt__(self, other):
         return self.f < other.f
 
-def calc_children(node, grid, diagonal):
+def calc_children(node, grid):
     cur_pos = node.position
     children_pos = []
     for t in range(-1, 2):
         for q in range(-1, 2):
-            if (diagonal == False) and (abs(t) == abs(q)):
+            if abs(t) == abs(q):
                 continue
 
             if t != 0 or q != 0:
@@ -29,12 +29,12 @@ def calc_children(node, grid, diagonal):
     return children_pos
  
 
-def find_path(grid, start_pos, end_pos, diagonal=True):
+def find_path(grid: list, start_pos, end_pos) -> list:
     cur_node = Node(start_pos)
 
     open_nodes = [cur_node]
-    open_dict = {start_pos: cur_node}
-    closed_nodes = {}
+    open_set = set([start_pos])
+    closed_set = set()
 
 
     while cur_node.position != end_pos:
@@ -42,26 +42,27 @@ def find_path(grid, start_pos, end_pos, diagonal=True):
             return None
 
         cur_node = heappop(open_nodes)
-        del open_dict[cur_node.position]
+        open_set.discard(cur_node.position)
 
         # Finds the children of the current_node. Removes current_node from open and adds it to the closed
-        childrenPos = calc_children(cur_node, grid, diagonal)
-        closed_nodes[cur_node.position] = cur_node
+        childrenPos = calc_children(cur_node, grid)
+        closed_set.add(cur_node.position)
 
         # Loops over the current node`s children
         for childPos in childrenPos:
             # Both are dictonaries and have fast lookup of nodes
-            if (childPos in closed_nodes) or (childPos in open_dict):
-                continue;
+            if (childPos in closed_set) or (childPos in open_set):
+                continue
 
             # Sets the costs and the parent for the child
             child = Node(childPos, cur_node)
             child.g = cur_node.g + 1
-            child.h = sqrt((end_pos[0] - child.position[0])**2 + (end_pos[1] - child.position[1])**2)
+            # child.h = sqrt((end_pos[0] - child.position[0])**2 + (end_pos[1] - child.position[1])**2)
+            child.h = abs(end_pos[0] -  child.position[0]) + abs(end_pos[1] -  child.position[1])
             child.f = child.g + child.h
 
             heappush(open_nodes, child)
-            open_dict[child.position] = child
+            open_set.add(child.position)
             
     positions = []
     while cur_node != None:

@@ -6,12 +6,39 @@ class Pacman(object):
     def __init__(self, x, y, length):
         self.x = x
         self.y = y
-        self.length = length-5
+        self.length = length-1
         self.dir = [0, 0]
         self.speed = 150
+        self._texture = pygame.image.load('pacman/textures/eating.png')
 
     def draw(self, wn):
-        pygame.draw.rect(wn, (255, 255, 0), (self.x, self.y, self.length, self.length))
+
+        if self.dir == [0, 0]:
+            pygame.draw.circle(wn, (255, 255, 0), (int(self.x+self.length//2), int(self.y+self.length//2)), int(self.length//2))
+            return
+
+        
+        scaled = pygame.transform.scale(self._texture, (self.length, self.length))
+        
+        rotation = 0 
+
+        if self.dir == [1, 0]:
+            rotation = 0
+        elif self.dir == [-1, 0]:
+            rotation = 180
+        elif self.dir == [0, 1]:
+            rotation = 270 
+        elif self.dir == [0, -1]:
+            rotation = 90
+        
+        
+        rotated = pygame.transform.rotate(scaled, rotation)
+        rect =  rotated.get_rect(center = scaled.get_rect(center = (self.x+self.length//2, self.y+self.length//2)).center)
+
+        wn.blit(rotated, rect.topleft)
+        
+        # wn.blit(self._texture, (self.x, self.y))
+        # pygame.draw.rect(wn, (255, 255, 0), (self.x, self.y, self.length, self.length))
 
     def _nextTileIsFree(self, xDir: int, yDir: int, layout: Layout) -> bool:
         corners = (

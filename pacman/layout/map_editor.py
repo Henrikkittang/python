@@ -2,65 +2,96 @@ import json
 import pygame
 pygame.init()
 
-def readJsonFile(filename):
-    with open('layout/' + filename + '.json') as f:
-        data = json.load(f)
-        f.close()
-    return data
 
-def writeJsonFile(filename, data):
-    with open('layout/' + filename + '.json', 'w') as f:
-        json.dump(data, f)
-        f.close()
+class MapEditor(object):
+    def __init__(self, filename, contentType):
+        self._filename = filename
+                
+        self._config = self._readJsonFile()['config']
+        self._width  = self._config['screen_w']
+        self._height = self._config['screen_h']
+        self._sql    = self._config['square_length']
 
-g_config = readJsonFile('map')['config']
-g_width = g_config['screen_w']
-g_height = g_config['screen_h']
-g_sql = g_config['square_length']
-g_font = pygame.font.SysFont(" ", 30, True)
+        self._font   = pygame.font.SysFont(" ", 30, True)
+        self._contentType = contentType
+        self._content = self._readJsonFile()[contentType]
 
-   
-def displayGrid(wn):
-    """Draws the lines representing the grid"""
-   
-    for i in range(g_sql, g_width, g_sql):
-        pygame.draw.line(wn, (255, 0, 0), (i, 0), (i, g_height))
-   
-    for i in range(g_sql, g_height, g_sql):
-        pygame.draw.line(wn, (255, 0, 0), (0, i), (g_width, i), 1)
+    def getWidth(self): return self._width
+    def getHeight(self): return self._height
+    def getSql(self): return self._sql
+    def getFont(self): return self._font
 
-def drawWall(wn, wallPos):
-    color = (40, 60, 235)
-    # print(wn, color, (wallPos[0]*g_sql, wallPos[1]*g_sql, g_sql, g_sql))
-    pygame.draw.rect(wn, color, (wallPos[0]*g_sql, wallPos[1]*g_sql, g_sql, g_sql))
+    def _readJsonFile(self):
+        with open('layout/' + self._filename + '.json') as f:
+            data = json.load(f)
+            f.close()
+        return data
+
+    def _writeJsonFile(self, data):
+        with open('layout/' + self._filename + '.json', 'w') as f:
+            json.dump(data, f)
+            f.close()
+        
+        
+    def displayGrid(self, wn):
+        """Draws the lines representing the grid"""
+    
+        for i in range(self._sql, self._width, self._sql):
+            pygame.draw.line(wn, (255, 0, 0), (i, 0), (i, self._height))
+    
+        for i in range(self._sql, self._height, self._sql):
+            pygame.draw.line(wn, (255, 0, 0), (0, i), (self._width, i), 1)
 
 
-def saveLayout(wallLayout):
-    data = readJsonFile('map')
-    data['wallLayout'] = wallLayout
+    def toggleContent(self, row, column):
+        for idx, i in  enumerate(self._content):
+            if [row, column] == i:
+                self._content.pop(idx)
+                return
+        self._content.append([row, column])
+    
+    def draw(self, wn):
 
-    writeJsonFile('map', data)
+        if self._contentType == 'wallLayout':
+            color = (40, 60, 235)
+            for pos in self._content:
+                pygame.draw.rect(wn, color, (pos[0]*self._sql, pos[1]*self._sql, self._sql, self._sql))
+
+        elif self._contentType == 'pelletLayout':
+            color = (255,255,0)
+            for pos in self._content:
+                pygame.draw.circle(wn, color,(pos[0]*self._sql + self._sql//2, pos[1]*self._sql + self._sql//2) ,3)
+            
+
+    def saveLayout(self):
+        data = self._readJsonFile()
+        data[self._contentType] = self._content
+        self._writeJsonFile(data)
 
 class Marker():
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+    def __init__(self, sql):
+        self.sql = sql
+        self.x = 0
+        self.y = 0
         self.color = (0, 255, 0)
 
-    def draw(self, wn):
-        drawPosX = self.x * g_sql
-        drawPosY = self.y * g_sql
-        pygame.draw.line(wn, self.color, (drawPosX, drawPosY), (drawPosX + g_sql, drawPosY))
-        pygame.draw.line(wn, self.color, (drawPosX + g_sql, drawPosY), (drawPosX + g_sql, drawPosY + g_sql))
-        pygame.draw.line(wn, self.color, (drawPosX + g_sql, drawPosY + g_sql), (drawPosX, drawPosY + g_sql))
-        pygame.draw.line(wn, self.color, (drawPosX, drawPosY + g_sql), (drawPosX, drawPosY))
+    def draw(self, wn, font):
+        drawPosX, drawPosY = self.getPixelPos()
 
-        pygame.draw.rect(wn, self.color, (self.x*g_sql, self.y*g_sql, g_sql, g_sql), 3)
+        pygame.draw.line(wn, self.color, (drawPosX, drawPosY), (drawPosX +  self.sql, drawPosY))
+        pygame.draw.line(wn, self.color, (drawPosX +  self.sql, drawPosY), (drawPosX +  self.sql, drawPosY +  self.sql))
+        pygame.draw.line(wn, self.color, (drawPosX +  self.sql, drawPosY +  self.sql), (drawPosX, drawPosY +  self.sql))
+        pygame.draw.line(wn, self.color, (drawPosX, drawPosY +  self.sql), (drawPosX, drawPosY))
 
-        coor = g_font.render(str(drawPosX) + ', ' + str(drawPosY), 1, (240, 255, 0))
+        pygame.draw.rect(wn, self.color, (self.x* self.sql, self.y* self.sql,  self.sql,  self.sql), 3)
+
+        coor = font.render(str(drawPosX) + ', ' + str(drawPosY), 1, (240, 255, 0))
         wn.blit(coor, (5, 5))
 
-    def getInput(self, wallLayout):
+    def getPixelPos(self) -> list:
+        return (self.x* self.sql, self.y* self.sql)
+
+    def getInput(self, wallEditor, pelletEditor):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:
@@ -72,21 +103,23 @@ class Marker():
         if keys[pygame.K_UP] and self.y > 0:
             self.y -= 1
 
-        if keys[pygame.K_SPACE]:
-            for idx, i in  enumerate(wallLayout):
-                if [self.x, self.y] == i:
-                    wallLayout.pop(idx)
-                    return
-            wallLayout.append([self.x, self.y])
+        if keys[pygame.K_1]:
+            wallEditor.toggleContent(self.x, self.y)
+            wallEditor.saveLayout()
+        elif keys[pygame.K_SPACE]:
+            pelletEditor.toggleContent(self.x, self.y)
+            pelletEditor.saveLayout()
+ 
+if __name__ == '__main__':    
+    wallEditor = MapEditor('map', 'wallLayout') 
+    pelletEditor = MapEditor('map', 'pelletLayout') 
+
+    marker = Marker(wallEditor.getSql())
 
 
-def main():
+    wn = pygame.display.set_mode(( wallEditor.getWidth(),  wallEditor.getHeight()))
+
     
-    wn = pygame.display.set_mode((g_width, g_height))
-    wallLayout = readJsonFile('map')['wallLayout']
-
-    
-    marker = Marker(2, 2)
     while True:
         wn.fill((0, 0, 0))
         pygame.time.delay(100)
@@ -94,19 +127,13 @@ def main():
             if event.type == pygame.QUIT:
                 quit()
 
-        for wall in wallLayout:
-            drawWall(wn,wall)
+        wallEditor.draw(wn)
+        pelletEditor.draw(wn)
 
-        marker.getInput(wallLayout)
-        marker.draw(wn)
-
-        saveLayout(wallLayout)
+        marker.draw(wn, wallEditor.getFont())
+        marker.getInput(wallEditor, pelletEditor)
 
         pygame.display.update()
-
-
-main()
-
 
 
 

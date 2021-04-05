@@ -4,18 +4,20 @@ pygame.init()
 
 class Layout(object):
     def __init__(self):
+        self.pellets = set()
         self._walls = []
         self._width = 0
         self._height = 0
         self._sql = 0
-        self._readWallsFromFile()
+        self._readMapFromFiles()
 
-    def _readWallsFromFile(self):
+    def _readMapFromFiles(self):
         with open('layout/map.json', 'r') as jsonFile:
             data = json.load(jsonFile)
             self._width = data['config']['screen_w']
             self._height = data['config']['screen_h']
             self._sql = data['config']['square_length']
+            self.pellets = set(tuple(x) for x in data['pelletLayout'])
             self._walls = [[0 for i in range(self._height//self._sql)] for j in range(self._width//self._sql)] 
 
             for pos in data['wallLayout']:
@@ -23,7 +25,6 @@ class Layout(object):
 
     def isWall(self, row: int, column: int) -> bool:
         return bool(self._walls[column][row])
-
     def getWalls(self) -> list: return self._walls
     
     def getWidth(self) -> int: return self._width

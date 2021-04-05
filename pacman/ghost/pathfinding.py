@@ -50,7 +50,7 @@ def find_path(grid: list, start_pos, end_pos) -> list:
 
         # Loops over the current node`s children
         for childPos in childrenPos:
-            # Both are dictonaries and have fast lookup of nodes
+            # Both are dictonaries and have fast lookup of positions
             if (childPos in closed_set) or (childPos in open_set):
                 continue
 

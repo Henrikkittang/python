@@ -15,8 +15,8 @@ class Ghost(object):
     def draw(self, wn) -> None:
         pygame.draw.rect(wn, (255, 0, 0), (self.x, self.y, self.length, self.length))
 
-        for p in self.path:
-            pygame.draw.rect(wn, (0, 255, 0), (p[0]*(self.length+3)+3, p[1]*(self.length+3)+3, (self.length+3)-6, (self.length+3)-6))
+        # for p in self.path:
+        #     pygame.draw.rect(wn, (0, 255, 0), (p[0]*(self.length+3)+3, p[1]*(self.length+3)+3, (self.length+3)-6, (self.length+3)-6))
 
     def getGridPos(self, x: float, y: float, sql: int) -> list:
         return (int(x//sql), int(y//sql))
@@ -30,25 +30,21 @@ class Ghost(object):
         )
 
         gridCorners = [self.getGridPos(x[0], x[1], layout.getSql()) for x in corners ]
-        res = all(x==gridCorners[0] for x in gridCorners)
-        print(res)
-        return res
+        return all(x==gridCorners[0] for x in gridCorners)
 
-
-    def move(self, layout, pacmanPos: tuple, dt: float) -> None:
-
-        gridPos = self.getGridPos(self.x, self.y, layout.getSql())
-        if len(self.path) < 1: 
-            destination = self.getDestination(pacmanPos, layout.getSql())
-            self.path = find_path(layout.getWalls(), gridPos, destination)
-
+    def move(self, layout, pacmanPos: tuple, dt: float):
         
-        self.setDirection(gridPos)
+        if self._insideTile(layout): 
+            gridPos = self.getGridPos(self.x, self.y, layout.getSql())
+            destination = self.getDestination(pacmanPos, layout.getSql())
+
+            self.path = find_path(layout.getWalls(), gridPos, destination)
+           
+            self.path.pop()
+            self.setDirection(gridPos)
+
         self.x += self.dir[0] * self.speed * dt 
         self.y += self.dir[1] * self.speed * dt
-
-        if self._insideTile(layout):
-            self.path.pop()
 
 
     def setDirection(self, gridPos) -> None:

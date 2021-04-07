@@ -12,7 +12,7 @@ class Node(object):
     def __lt__(self, other):
         return self.f < other.f
 
-def calc_children(node, grid):
+def calc_children(node: Node, grid: list):
     cur_pos = node.position
     children_pos = []
     for t in range(-1, 2):
@@ -29,7 +29,7 @@ def calc_children(node, grid):
     return children_pos
  
 
-def find_path(grid: list, start_pos, end_pos) -> list:
+def find_path(grid: list, start_pos: tuple, end_pos: tuple) -> list:
     cur_node = Node(start_pos)
 
     open_nodes = [cur_node]

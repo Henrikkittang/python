@@ -1,6 +1,6 @@
 from layout.layout import Layout
 from pacman.pacman import Pacman
-from ghost.ghost import Blinky
+from ghost.ghost import Blinky, Pinky
 import pygame
 pygame.init()
 
@@ -10,6 +10,7 @@ if __name__ == '__main__':
     layout = Layout()
     window = pygame.display.set_mode((layout.getWidth(), layout.getHeight()))
     pacman = Pacman(200, 300, layout.getSql())
+    pinky = Pinky(350, 250, layout.getSql())
     blinky = Blinky(350, 250, layout.getSql())
 
     while True:
@@ -25,9 +26,12 @@ if __name__ == '__main__':
         
         pacman.move(layout, dt)
         pacman.checkColliding(layout)
+        pacman.eat(layout)
         pacman.draw(window)
 
-        blinky.move(layout, (pacman.x, pacman.y), dt)
+        pinky.move(layout, pacman, dt)
+        pinky.draw(window)
+        blinky.move(layout, pacman, dt)
         blinky.draw(window)
         
 

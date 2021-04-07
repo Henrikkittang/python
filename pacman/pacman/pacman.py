@@ -8,10 +8,16 @@ class Pacman(object):
         self.y = y
         self.length = length-1
         self.dir = [0, 0]
+        self.facing = [0, 0]
         self.speed = 150
+        self.score = 0
         self._texture = pygame.image.load('pacman/textures/eating.png')
+        self._font    = pygame.font.SysFont(" ", 30, True)
+
 
     def draw(self, wn):
+        text = self._font.render('Score: {}'.format(self.score), 1, (255, 255, 0))
+        wn.blit(text, (5, 5))
 
         if self.dir == [0, 0]:
             pygame.draw.circle(wn, (255, 255, 0), (int(self.x+self.length//2), int(self.y+self.length//2)), int(self.length//2))
@@ -71,7 +77,12 @@ class Pacman(object):
         self.x += self.dir[0] * self.speed * dt
         self.y += self.dir[1] * self.speed * dt
 
-    def getGridPos(self, x: float, y: float, sql: int) -> list:
+    def eat(self, layout) -> None:
+        row, column = self.getGridPos(self.x, self.y, layout.getSql())
+        if layout.eatPellet(row, column):
+            self.score += 1
+
+    def getGridPos(self, x: float, y: float, sql: int) -> tuple:
         return (int(x//sql), int(y//sql))
 
     def checkColliding(self, layout: Layout) -> None:

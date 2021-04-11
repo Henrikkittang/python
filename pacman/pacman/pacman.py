@@ -1,3 +1,5 @@
+import math
+
 from layout.layout import Layout
 import pygame
 pygame.init()
@@ -8,43 +10,37 @@ class Pacman(object):
         self.y = y
         self.length = length-1
         self.dir = [0, 0]
-        self.facing = [0, 0]
         self.speed = 150
         self.score = 0
-        self._texture = pygame.image.load('pacman/textures/eating.png')
+        self._animation_counter = 0
+        self._animations = [
+            pygame.image.load('pacman/textures/pac1.png'),
+            pygame.image.load('pacman/textures/pac2.png'),
+            pygame.image.load('pacman/textures/pac3.png'),
+            pygame.image.load('pacman/textures/pac2.png')
+        ]
         self._font    = pygame.font.SysFont(" ", 30, True)
 
 
-    def draw(self, wn):
+    def draw(self, wn, dt):
         text = self._font.render('Score: {}'.format(self.score), 1, (255, 255, 0))
         wn.blit(text, (5, 5))
 
         if self.dir == [0, 0]:
-            pygame.draw.circle(wn, (255, 255, 0), (int(self.x+self.length//2), int(self.y+self.length//2)), int(self.length//2))
+            wn.blit(self._animations[0], (self.x, self.y))
             return
 
-        
-        scaled = pygame.transform.scale(self._texture, (self.length, self.length))
-        
-        rotation = 0 
+        self._animation_counter += dt
+        idx = int(self._animation_counter // 0.05)
+        if idx >= len(self._animations): 
+            self._animation_counter = 0
+            idx = 0
 
-        if self.dir == [1, 0]:
-            rotation = 0
-        elif self.dir == [-1, 0]:
-            rotation = 180
-        elif self.dir == [0, 1]:
-            rotation = 270 
-        elif self.dir == [0, -1]:
-            rotation = 90
+        rotation = math.degrees( -math.atan2(self.dir[1], self.dir[0]) )  
+        rotated_texture = pygame.transform.rotate(self._animations[idx], rotation)
         
+        wn.blit(rotated_texture, (self.x, self.y))
         
-        rotated = pygame.transform.rotate(scaled, rotation)
-        rect =  rotated.get_rect(center = scaled.get_rect(center = (self.x+self.length//2, self.y+self.length//2)).center)
-
-        wn.blit(rotated, rect.topleft)
-        
-        # wn.blit(self._texture, (self.x, self.y))
-        # pygame.draw.rect(wn, (255, 255, 0), (self.x, self.y, self.length, self.length))
 
     def _nextTileIsFree(self, xDir: int, yDir: int, layout: Layout) -> bool:
         corners = (
@@ -65,6 +61,7 @@ class Pacman(object):
     def move(self, layout, dt: float) -> None:
         keys = pygame.key.get_pressed()
 
+        # _nextTileIsFree makes sure pacman before he hits end of corridor
         if keys[pygame.K_DOWN] and self._nextTileIsFree(0, 1, layout):
             self.dir = [0, 1]
         elif keys[pygame.K_UP] and self._nextTileIsFree(0, -1, layout):

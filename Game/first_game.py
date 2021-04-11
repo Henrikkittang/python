@@ -110,7 +110,7 @@ class enemy(object):
                 self.walkCount = 0
                 
             if self.vel > 0:
-                wn.blit(self.walkRight[self.walkCount //3], (self.x, self.y))
+                wn.blit(self.walkRight[self.walkCount//3], (self.x, self.y))
                 self.walkCount += 1
             else:
                 wn.blit(self.walkLeft[self.walkCount //3], (self.x, self.y))

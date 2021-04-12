@@ -44,7 +44,7 @@ class MapEditor(object):
 
 
     def toggleContent(self, row, column):
-        for idx, i in  enumerate(self._content):
+        for idx, i in enumerate(self._content):
             if [row, column] == i:
                 self._content.pop(idx)
                 return
@@ -62,6 +62,11 @@ class MapEditor(object):
             for pos in self._content:
                 pygame.draw.circle(wn, color,(pos[0]*self._sql + self._sql//2, pos[1]*self._sql + self._sql//2) ,3)
             
+        elif self._contentType == 'powerPelletLayout':
+            color = (180,180,255)
+            for pos in self._content:
+                pygame.draw.circle(wn, color,(pos[0]*self._sql + self._sql//2, pos[1]*self._sql + self._sql//2) , 6)
+                
 
     def saveLayout(self):
         data = self._readJsonFile()
@@ -91,7 +96,7 @@ class Marker():
     def getPixelPos(self) -> list:
         return (self.x* self.sql, self.y* self.sql)
 
-    def getInput(self, wallEditor, pelletEditor):
+    def getInput(self, wallEditor, pelletEditor, powerPelletEditor):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_RIGHT]:
@@ -106,13 +111,18 @@ class Marker():
         if keys[pygame.K_1]:
             wallEditor.toggleContent(self.x, self.y)
             wallEditor.saveLayout()
-        elif keys[pygame.K_SPACE]:
+        elif keys[pygame.K_2]:
             pelletEditor.toggleContent(self.x, self.y)
             pelletEditor.saveLayout()
+        elif keys[pygame.K_SPACE]:
+            powerPelletEditor.toggleContent(self.x, self.y)
+            powerPelletEditor.saveLayout()
  
 if __name__ == '__main__':    
     wallEditor = MapEditor('map', 'wallLayout') 
     pelletEditor = MapEditor('map', 'pelletLayout') 
+    powerPelletEditor = MapEditor('map', 'powerPelletLayout') 
+
 
     marker = Marker(wallEditor.getSql())
 
@@ -128,10 +138,11 @@ if __name__ == '__main__':
                 quit()
 
         wallEditor.draw(wn)
+        powerPelletEditor.draw(wn)
         pelletEditor.draw(wn)
 
         marker.draw(wn, wallEditor.getFont())
-        marker.getInput(wallEditor, pelletEditor)
+        marker.getInput(wallEditor, pelletEditor, powerPelletEditor)
 
         pygame.display.update()
 

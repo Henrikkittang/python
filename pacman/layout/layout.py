@@ -42,6 +42,7 @@ class Layout(object):
     def getHeight(self) -> int: return self._height
     def getSql(self) -> int: return self._sql
 
+
     def draw(self, wn) -> None:
         for row in range(len(self._walls)):
             for column in range(len(self._walls[row])):

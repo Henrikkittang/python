@@ -14,6 +14,14 @@ if __name__ == '__main__':
 
     pacman = Pacman(200, 300, layout.getSql())
 
+
+    ghosts = [
+        Pinky ((350, 250), (25 , 25 ), layout.getSql()),
+        Blinky((351, 251), (525, 25 ), layout.getSql()),
+        Inky  ((150, 275), (525, 525), layout.getSql()),
+        Clyde ((351, 251), (25 , 525), layout.getSql()),    
+    ]
+
     pinky  = Pinky ((350, 250), (25 , 25 ), layout.getSql())
     blinky = Blinky((351, 251), (525, 25 ), layout.getSql())
     inky   = Inky  ((150, 275), (525, 525), layout.getSql())
@@ -35,18 +43,11 @@ if __name__ == '__main__':
         pacman.eat(layout)
         pacman.draw(window, dt)
 
-        blinky.move(layout, pacman, dt)
-        blinky.draw(window)
-        
-        pinky.move(layout, pacman, dt)
-        pinky.draw(window)
-        
-        inky.setBlinkyPosition(blinky.getGridPos(blinky.x, blinky.y, layout.getSql()))
-        inky.move(layout, pacman, dt)
-        inky.draw(window)
-
-        clyde.move(layout, pacman, dt)
-        clyde.draw(window)
+        for ghost in ghosts:
+            if isinstance(ghost, Inky):
+                ghost.setBlinkyPosition(blinky.getGridPos(blinky.x, blinky.y, layout.getSql()))
+            ghost.move(layout, pacman, dt)
+            ghost.draw(window)
 
 
         pygame.display.update()

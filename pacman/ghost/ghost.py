@@ -13,14 +13,10 @@ class Ghost(object):
         self.color = None
         self.speed = 120
         self.corner = (0, 0)
-
-        self.prevPos = (0, 0)
-
+        self.counter = 0
+        
     def draw(self, wn) -> None:
         pygame.draw.rect(wn, self.color, (self.x, self.y, self.length, self.length))
-        pygame.draw.rect(wn, (255, 0, 0), (self.prevPos[0]*25, self.prevPos[1]*25, 25, 25))
-        pygame.draw.rect(wn, (0, 255, 0), (self.x + self.dir[0]*25, self.y+self.dir[1]*25, 25, 25))
-
        
     def getGridPos(self, x: float, y: float, sql: int) -> list:
         return (int(x//sql), int(y//sql))
@@ -34,23 +30,15 @@ class Ghost(object):
                 # Pytagoras from sqaure to target
         # Move in next tile`s direction
         
-
-        if self._insideTile(layout):
+        self.counter += dt
+        if self._insideTile(layout) and self.counter > 0.030:
+            self.counter = 0
 
             target = self._getDestination(layout, pacman)
             tiles = self._find_tiles(layout)
+            tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
 
-            lowest_dist = 100000000000
-            lowest_tile = None
-
-            for tile in tiles:
-                curDist = self.dist(tile[0], tile[1], target[0], target[1])
-                if curDist < lowest_dist:
-                    lowest_dist = curDist
-                    lowest_tile = tile
-                
-            self.tempPrev = lowest_tile
-            self._setDirection(layout, lowest_tile)
+            self._setDirection(layout, tiles[0])
 
         self.x += self.dir[0] * self.speed * dt 
         self.y += self.dir[1] * self.speed * dt
@@ -137,6 +125,25 @@ class Pinky(Ghost):
                 return (row, column)
         return pacGridPos 
 
+class Inky(Ghost):
+    def __init__(self, x, y, length):
+        super().__init__(x, y, length)
+        self.blinkyPos = (0, 0)
+        self.color = (180, 180, 255)
+
+    def setBlinkyPosition(self, blinkyPos: tuple) -> None:
+        self.blinkyPos = blinkyPos
+
+    def _getDestination(self, layout, pacman) -> tuple:
+        pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
+        # gridPos = self.getGridPos(self.x, self.y, layout.getSql())
+
+        vect = [self.blinkyPos[0]-pacPos[0], self.blinkyPos[1]-pacPos[1]]
+        vect = [-x for x in vect]
+
+        target = (pacPos[0]+vect[0], pacPos[1]+vect[1])
+        return target
+
 
 class Clyde(Ghost):
     def __init__(self, x, y, length):
@@ -154,6 +161,7 @@ class Clyde(Ghost):
             return self.corner
         else:
             return pacPos
+
 
 
  

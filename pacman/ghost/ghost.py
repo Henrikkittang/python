@@ -1,28 +1,38 @@
 from math import sqrt
 from random import randint
-from ghost.pathfinding import find_path
+from enum import Enum
 import pygame
 pygame.init()
 
+class Mode(Enum):
+    CHASE = 1
+    FRIGHTEND = 2
+    SCATTER = 3
+
 class Ghost(object):
-    def __init__(self, x: int, y: int, length: int):
-        self.x = x
-        self.y = y
-        self.dir = [0, 0]
-        self.length = length-3
-        self.color = None
+    def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
+        self.x, self.y = pixelPos
+        self.corner = self.getGridPos(cornerPos[0], cornerPos[1], sql)
+        self.length = sql-3
         self.speed = 120
-        self.corner = (0, 0)
+        self.dir = [0, 0]
+
+        self.color = ()
         self.counter = 0
+
+        self.mode = Mode.SCATTER
         
     def draw(self, wn) -> None:
-        pygame.draw.rect(wn, self.color, (self.x, self.y, self.length, self.length))
-       
+        if self.mode == Mode.CHASE or self.mode == Mode.SCATTER:
+            pygame.draw.rect(wn, self.color, (self.x, self.y, self.length, self.length))
+        elif self.mode == Mode.FRIGHTEND:
+            pygame.draw.rect(wn, (50, 50, 200), (self.x, self.y, self.length, self.length))
+
     def getGridPos(self, x: float, y: float, sql: int) -> list:
         return (int(x//sql), int(y//sql))
 
     
-    def move(self, layout, pacman, dt: float):
+    def move(self, layout: object, pacman: object, dt: float):
         # Check that ghost is fully inside square
             # Find available tiles
                 # Cant move backwards or to wall-tiles
@@ -34,11 +44,21 @@ class Ghost(object):
         if self._insideTile(layout) and self.counter > 0.030:
             self.counter = 0
 
-            target = self._getDestination(layout, pacman)
             tiles = self._find_tiles(layout)
-            tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
 
-            self._setDirection(layout, tiles[0])
+            if self.mode == Mode.CHASE:
+                target = self._getDestination(layout, pacman)
+                tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
+                self._setDirection(layout, tiles[0])
+
+            elif self.mode == Mode.FRIGHTEND:
+                idx = randint(0, len(tiles)-1)
+                self._setDirection(layout, tiles[idx])
+
+            elif self.mode == Mode.SCATTER:
+                target = self.corner
+                tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
+                self._setDirection(layout, tiles[0])
 
         self.x += self.dir[0] * self.speed * dt 
         self.y += self.dir[1] * self.speed * dt
@@ -91,29 +111,29 @@ class Ghost(object):
         gridCorners = [self.getGridPos(x[0], x[1], layout.getSql()) for x in corners ]
         return all(x==gridCorners[0] for x in gridCorners)
 
-    def _getDestination(self, layout, pacman) -> tuple:
+    def _getDestination(self, layout: object, pacman: object) -> tuple:
         raise NotImplementedError() # Making the function kinda virtual
 
 
 
 class Blinky(Ghost):
-    def __init__(self, x, y, length):
-        super().__init__(x, y, length)
+    def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
+        super().__init__(pixelPos, cornerPos, sql)
         self.color = (255, 0, 0) # Red
 
     # Chases pacman exact position
-    def _getDestination(self, layout, pacman) -> tuple:
+    def _getDestination(self, layout: object, pacman: object) -> tuple:
         return pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
 
 
 class Pinky(Ghost):
-    def __init__(self, x, y, length):
-        super().__init__(x, y, length)
+    def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
+        super().__init__(pixelPos, cornerPos, sql)
         self.color = (255, 200, 200) # Pink?
         self.facing = [0, 0] # tracks pacman facing instead of direction
 
     # Finds position 4 tile ahead of pacman
-    def _getDestination(self, layout, pacman) -> tuple:
+    def _getDestination(self, layout: object, pacman: object) -> tuple:
         if pacman.dir != [0, 0]:
             self.facing = pacman.dir
 
@@ -126,15 +146,15 @@ class Pinky(Ghost):
         return pacGridPos 
 
 class Inky(Ghost):
-    def __init__(self, x, y, length):
-        super().__init__(x, y, length)
+    def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
+        super().__init__(pixelPos, cornerPos, sql)
         self.blinkyPos = (0, 0)
         self.color = (180, 180, 255)
 
     def setBlinkyPosition(self, blinkyPos: tuple) -> None:
         self.blinkyPos = blinkyPos
 
-    def _getDestination(self, layout, pacman) -> tuple:
+    def _getDestination(self, layout: object, pacman: object) -> tuple:
         pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
         # gridPos = self.getGridPos(self.x, self.y, layout.getSql())
 
@@ -146,12 +166,12 @@ class Inky(Ghost):
 
 
 class Clyde(Ghost):
-    def __init__(self, x, y, length):
-        super().__init__(x, y, length)
+    def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
+        super().__init__(pixelPos, cornerPos, sql)
         self.color = (255,165,0)
 
     # Same as blinkey, but runs to corner when close to pacman
-    def _getDestination(self, layout, pacman):
+    def _getDestination(self, layout: object, pacman: object) -> tuple:
         pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
         selfPos = super().getGridPos(self.x, self.y, layout.getSql())
 

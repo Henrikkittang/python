@@ -5,10 +5,10 @@ import pygame
 pygame.init()
 
 class Pacman(object):
-    def __init__(self, x, y, length):
+    def __init__(self, x, y, sql):
         self.x = x
         self.y = y
-        self.length = length-1
+        self.length = sql-1
         self.dir = [0, 0]
         self.speed = 150
         self.score = 0
@@ -40,24 +40,6 @@ class Pacman(object):
         rotated_texture = pygame.transform.rotate(self._animations[idx], rotation)
         
         wn.blit(rotated_texture, (self.x, self.y))
-        
-
-    def _nextTileIsFree(self, xDir: int, yDir: int, layout: Layout) -> bool:
-        corners = (
-            (self.x, self.y), # Top left
-            (self.x+self.length, self.y), # Top right
-            (self.x, self.y+self.length), # Bottom left
-            (self.x+self.length, self.y+self.length) # Bottom right
-        )
-        
-        for corner in corners:
-            row, column = self.getGridPos(corner[0], corner[1], layout.getSql())
-            row += xDir
-            column += yDir
-            if layout.isWall(row, column):
-                return False
-        return True
-
     def move(self, layout, dt: float) -> None:
         keys = pygame.key.get_pressed()
 
@@ -112,7 +94,21 @@ class Pacman(object):
                 break
         
 
-
+    def _nextTileIsFree(self, xDir: int, yDir: int, layout: Layout) -> bool:
+        corners = (
+            (self.x, self.y), # Top left
+            (self.x+self.length, self.y), # Top right
+            (self.x, self.y+self.length), # Bottom left
+            (self.x+self.length, self.y+self.length) # Bottom right
+        )
+        
+        for corner in corners:
+            row, column = self.getGridPos(corner[0], corner[1], layout.getSql())
+            row += xDir
+            column += yDir
+            if layout.isWall(row, column):
+                return False
+        return True
 
 
 

@@ -45,7 +45,7 @@ class Layout(object):
     def draw(self, wn) -> None:
         for row in range(len(self._walls)):
             for column in range(len(self._walls[row])):
-                if self._walls[row][column] == 1:
+                if self.isWall(column, row):
                     pygame.draw.rect(wn, (40, 60, 235), (column*self._sql, row*self._sql, self._sql, self._sql))
 
         for pos in self._pellets:

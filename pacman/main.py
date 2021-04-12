@@ -14,12 +14,10 @@ if __name__ == '__main__':
 
     pacman = Pacman(200, 300, layout.getSql())
 
-    pinky = Pinky(350, 250, layout.getSql())
-    blinky = Blinky(351, 251, layout.getSql())
-    inky = Inky(376, 276, layout.getSql())
-    clyde = Clyde(351, 251, layout.getSql())
-
-    clyde.corner = clyde.getGridPos(clyde.x, clyde.y, layout.getSql())
+    pinky  = Pinky ((350, 250), (25 , 25 ), layout.getSql())
+    blinky = Blinky((351, 251), (525, 25 ), layout.getSql())
+    inky   = Inky  ((150, 275), (525, 525), layout.getSql())
+    clyde  = Clyde ((351, 251), (25 , 525), layout.getSql())
 
     while True:
         for event in pygame.event.get():
@@ -52,3 +50,4 @@ if __name__ == '__main__':
 
 
         pygame.display.update()
+

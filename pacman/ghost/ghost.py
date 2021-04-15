@@ -15,25 +15,34 @@ class Ghost(object):
         self.corner = self.getGridPos(cornerPos[0], cornerPos[1], sql)
         self.length = sql-3
         self.speed = 120
-        self.dir = [0, 0]
+        self.dir = (0, 0)
         self._animation_counter = 0
         self.counter = 0
-        self.mode = Mode.SCATTER
+        self.mode = Mode.CHASE
+        self._frighend_mode_animation = (
+            pygame.image.load('ghost/textures/frightend1.png'),
+            pygame.image.load('ghost/textures/frightend2.png'),
+        )
         
     def draw(self, wn, dt: float) -> None:
         self._animation_counter += dt
 
         idx = int(self._animation_counter // 0.05)
-        if idx >= len(self._animations): 
-            self._animation_counter = 0
-            idx = 0
-
+        if idx >= 2: 
+            idx = self._animation_counter = 0
+        
+        directions = {
+            (1,  0): (self._animations[0], self._animations[1]),
+            (-1, 0): (self._animations[2], self._animations[3]),
+            (0, -1): (self._animations[4], self._animations[5]),
+            (0,  1): (self._animations[6], self._animations[7]),
+        }
+        
         if self.mode == Mode.CHASE or self.mode == Mode.SCATTER:
-            # pygame.draw.rect(wn, self.color, (self.x, self.y, self.length, self.length))
-            wn.blit(self._animations[idx], (self.x, self.y))
+            wn.blit(directions[self.dir][idx], (self.x, self.y))
     
         elif self.mode == Mode.FRIGHTEND:
-            pygame.draw.rect(wn, (50, 50, 200), (self.x, self.y, self.length, self.length))
+            wn.blit(self._frighend_mode_animation[idx], (self.x, self.y))
 
     def getGridPos(self, x: float, y: float, sql: int) -> list:
         return (int(x//sql), int(y//sql))
@@ -102,10 +111,10 @@ class Ghost(object):
     def _setDirection(self, layout, nextTile: tuple) -> None:
         gridPos = self.getGridPos(self.x, self.y, layout.getSql())
 
-        if   gridPos[0] > nextTile[0]: self.dir = [-1,  0]
-        elif gridPos[0] < nextTile[0]: self.dir = [ 1,  0]
-        elif gridPos[1] > nextTile[1]: self.dir = [ 0, -1]
-        elif gridPos[1] < nextTile[1]: self.dir = [ 0,  1]
+        if   gridPos[0] > nextTile[0]: self.dir = (-1,  0)
+        elif gridPos[0] < nextTile[0]: self.dir = ( 1,  0)
+        elif gridPos[1] > nextTile[1]: self.dir = ( 0, -1)
+        elif gridPos[1] < nextTile[1]: self.dir = ( 0,  1)
 
     def _insideTile(self, layout) -> bool:
         corners = (
@@ -127,8 +136,14 @@ class Blinky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
         self._animations = (
-            pygame.image.load('ghost/textures/blinky1.png'),
-            pygame.image.load('ghost/textures/blinky2.png'),
+            pygame.image.load('ghost/textures/blinky_right1.png'),
+            pygame.image.load('ghost/textures/blinky_right2.png'),
+            pygame.image.load('ghost/textures/blinky_left1.png'),
+            pygame.image.load('ghost/textures/blinky_left2.png'),
+            pygame.image.load('ghost/textures/blinky_up1.png'),
+            pygame.image.load('ghost/textures/blinky_up2.png'),
+            pygame.image.load('ghost/textures/blinky_down1.png'),
+            pygame.image.load('ghost/textures/blinky_down2.png'),
         )
     # Chases pacman exact position
     def _getDestination(self, layout: object, pacman: object) -> tuple:
@@ -139,8 +154,14 @@ class Pinky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
         self._animations = (
-            pygame.image.load('ghost/textures/pinky1.png'),
-            pygame.image.load('ghost/textures/pinky2.png'),
+            pygame.image.load('ghost/textures/pinky_right1.png'),
+            pygame.image.load('ghost/textures/pinky_right2.png'),
+            pygame.image.load('ghost/textures/pinky_left1.png'),
+            pygame.image.load('ghost/textures/pinky_left2.png'),
+            pygame.image.load('ghost/textures/pinky_up1.png'),
+            pygame.image.load('ghost/textures/pinky_up2.png'),
+            pygame.image.load('ghost/textures/pinky_down1.png'),
+            pygame.image.load('ghost/textures/pinky_down2.png'),
         )
         self.facing = [0, 0] # tracks pacman facing instead of direction
 
@@ -163,8 +184,14 @@ class Inky(Ghost):
         super().__init__(pixelPos, cornerPos, sql)
         self.blinkyPos = (0, 0)
         self._animations = (
-            pygame.image.load('ghost/textures/inky1.png'),
-            pygame.image.load('ghost/textures/inky2.png'),
+            pygame.image.load('ghost/textures/inky_right1.png'),
+            pygame.image.load('ghost/textures/inky_right2.png'),
+            pygame.image.load('ghost/textures/inky_left1.png'),
+            pygame.image.load('ghost/textures/inky_left2.png'),
+            pygame.image.load('ghost/textures/inky_up1.png'),
+            pygame.image.load('ghost/textures/inky_up2.png'),
+            pygame.image.load('ghost/textures/inky_down1.png'),
+            pygame.image.load('ghost/textures/inky_down2.png'),
         )
 
     def setBlinkyPosition(self, blinkyPos: tuple) -> None:
@@ -185,8 +212,14 @@ class Clyde(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
         self._animations = (
-            pygame.image.load('ghost/textures/clyde1.png'),
-            pygame.image.load('ghost/textures/clyde2.png'),
+            pygame.image.load('ghost/textures/clyde_right1.png'),
+            pygame.image.load('ghost/textures/clyde_right2.png'),
+            pygame.image.load('ghost/textures/clyde_left1.png'),
+            pygame.image.load('ghost/textures/clyde_left2.png'),
+            pygame.image.load('ghost/textures/clyde_up1.png'),
+            pygame.image.load('ghost/textures/clyde_up2.png'),
+            pygame.image.load('ghost/textures/clyde_down1.png'),
+            pygame.image.load('ghost/textures/clyde_down2.png'),
         )
     # Same as blinkey, but runs to corner when close to pacman
     def _getDestination(self, layout: object, pacman: object) -> tuple:
@@ -195,10 +228,8 @@ class Clyde(Ghost):
 
         dist = sqrt((selfPos[0] - pacPos[0])**2 + (selfPos[1] - pacPos[1])**2)
 
-        if dist < 8:
-            return self.corner
-        else:
-            return pacPos
+        return (self.corner if dist < 8 else pacPos)
+        
 
 
 

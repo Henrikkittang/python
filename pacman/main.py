@@ -16,16 +16,11 @@ if __name__ == '__main__':
 
 
     ghosts = [
-        Pinky ((350, 250), (25 , 25 ), layout.getSql()),
         Blinky((351, 251), (525, 25 ), layout.getSql()),
-        Inky  ((125, 275), (525, 525), layout.getSql()),
+        Pinky ((350, 250), (25 , 25 ), layout.getSql()),
+        Inky  ((150, 275), (525, 525), layout.getSql()),
         Clyde ((351, 251), (25 , 525), layout.getSql()),    
     ]
-
-    pinky  = Pinky ((350, 250), (25 , 25 ), layout.getSql())
-    blinky = Blinky((351, 251), (525, 25 ), layout.getSql())
-    inky   = Inky  ((125, 275), (525, 525), layout.getSql())
-    clyde  = Clyde ((351, 251), (25 , 525), layout.getSql())
 
     while True:
         for event in pygame.event.get():
@@ -45,7 +40,7 @@ if __name__ == '__main__':
 
         for ghost in ghosts:
             if isinstance(ghost, Inky):
-                ghost.setBlinkyPosition(blinky.getGridPos(blinky.x, blinky.y, layout.getSql()))
+                ghost.setBlinkyPosition(ghosts[0].getGridPos(ghosts[0].x, ghosts[0].y, layout.getSql()))
             ghost.move(layout, pacman, dt)
             ghost.draw(window, dt)
 

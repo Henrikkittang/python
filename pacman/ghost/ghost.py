@@ -14,25 +14,25 @@ class Ghost(object):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         self.x, self.y = pixelPos
         self._corner = self.getGridPos(cornerPos[0], cornerPos[1], sql)
-        self.length = sql-3
-        self.speed = 120
-        self.dir = (0, 0)
-        self._animation_counter = 0
-        self.counter = 0
+        self._length = sql-3
+        self._speed = 120
+        self._direction = (0, 0)
+        self._animationCounter = 0
+        self._counter = 0
         self._mode = Mode.CHASE
-        self._frighend_mode_animation = (
+        self._frighendModeAnimation = (
             pygame.image.load('ghost/textures/frightend1.png'),
             pygame.image.load('ghost/textures/frightend2.png'),
         )
     
     def draw(self, wn, dt: float) -> None:
-        self._animation_counter += dt
+        self._animationCounter += dt
 
-        idx = int(self._animation_counter // 0.05)
+        idx = int(self._animationCounter // 0.05)
         if idx >= 2: 
-            idx = self._animation_counter = 0
+            idx = self._animationCounter = 0
         
-        directions = {
+        _directionections = {
             (1,  0): (self._animations[0], self._animations[1]),
             (-1, 0): (self._animations[2], self._animations[3]),
             (0, -1): (self._animations[4], self._animations[5]),
@@ -40,10 +40,10 @@ class Ghost(object):
         }
         
         if self._mode == Mode.CHASE or self._mode == Mode.SCATTER:
-            wn.blit(directions[self.dir][idx], (self.x, self.y))
+            wn.blit(_directionections[self._direction][idx], (self.x, self.y))
     
         elif self._mode == Mode.FRIGHTEND:
-            wn.blit(self._frighend_mode_animation[idx], (self.x, self.y))
+            wn.blit(self._frighendModeAnimation[idx], (self.x, self.y))
 
     def getGridPos(self, x: float, y: float, sql: int) -> list:
         return (int(x//sql), int(y//sql))
@@ -54,11 +54,11 @@ class Ghost(object):
                 # Cant move backwards or to wall-tiles
             # Find closest tile to target
                 # Pytagoras from sqaure to target
-        # Move in next tile`s direction
+        # Move in next tile`s _directionection
         
-        self.counter += dt
-        if self._insideTile(layout) and self.counter > 0.030:
-            self.counter = 0
+        self._counter += dt
+        if self._insideTile(layout) and self._counter > 0.030:
+            self._counter = 0
 
             tiles = self._findTiles(layout)
 
@@ -76,12 +76,12 @@ class Ghost(object):
                 tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
                 self._setDirection(layout, tiles[0])
 
-        self.x += self.dir[0] * self.speed * dt 
-        self.y += self.dir[1] * self.speed * dt
+        self.x += self._direction[0] * self._speed * dt 
+        self.y += self._direction[1] * self._speed * dt
         
 
 
-    def _findTiles(self, layout):
+    def _findTiles(self, layout: object):
         # Find all tiles that are not walls
         # Remove tile behind ghost
 
@@ -99,41 +99,41 @@ class Ghost(object):
         if not layout.isWall(gridPos[0], gridPos[1]-1):
             tiles.append( (gridPos[0], gridPos[1]-1) )
       
-        prevTile = (gridPos[0]-self.dir[0], gridPos[1]-self.dir[1])
+        prevTile = (gridPos[0]-self._direction[0], gridPos[1]-self._direction[1])
         self.prevPos = prevTile
 
         if prevTile in tiles: tiles.remove(prevTile)
         return tiles
 
-    def dist(self, x1: int, y1: int, x2: int, y2: int) -> float:
+    def dist(self, x1: float, y1: float, x2: float, y2: float) -> float:
         return sqrt((x2-x1)**2 + (y2-y1)**2)
 
     def _setDirection(self, layout, nextTile: tuple) -> None:
         gridPos = self.getGridPos(self.x, self.y, layout.getSql())
 
-        if   gridPos[0] > nextTile[0]: self.dir = (-1,  0)
-        elif gridPos[0] < nextTile[0]: self.dir = ( 1,  0)
-        elif gridPos[1] > nextTile[1]: self.dir = ( 0, -1)
-        elif gridPos[1] < nextTile[1]: self.dir = ( 0,  1)
+        if   gridPos[0] > nextTile[0]: self._direction = (-1,  0)
+        elif gridPos[0] < nextTile[0]: self._direction = ( 1,  0)
+        elif gridPos[1] > nextTile[1]: self._direction = ( 0, -1)
+        elif gridPos[1] < nextTile[1]: self._direction = ( 0,  1)
 
-    def _insideTile(self, layout) -> bool:
+    def _insideTile(self, layout: object) -> bool:
         corners = (
             (self.x, self.y), # Top left
-            (self.x+self.length, self.y), # Top right
-            (self.x, self.y+self.length), # Bottom left
-            (self.x+self.length, self.y+self.length) # Bottom right
+            (self.x+self._length, self.y), # Top right
+            (self.x, self.y+self._length), # Bottom left
+            (self.x+self._length, self.y+self._length) # Bottom right
         )
 
         gridCorners = [self.getGridPos(x[0], x[1], layout.getSql()) for x in corners ]
         return all(x==gridCorners[0] for x in gridCorners)
     
-    def _loadGhosts(self, idx1, idx2):
-        baseImage = ImageCroper.loadImage('ghost/textures/spritesheet.png')
+    def _loadGhosts(self, idx1: int, idx2: int) -> list:
+        baseImage   = ImageCroper.loadImage('ghost/textures/spritesheet.png')
         transparent = ImageCroper.makeTransparant(baseImage, (0, 0, 0))
-        croped = ImageCroper.crop(transparent, 14, 14, 2)
-        rezied = [ImageCroper.resize(x, 22, 22) for x in croped]
+        croped      = ImageCroper.crop(transparent, 14, 14, 2)
+        rezied      = [ImageCroper.resize(x, 22, 22) for x in croped]
         
-        sprites = [pygame.image.fromstring(image.tobytes(), (self.length, self.length), 'RGBA') for image in rezied]
+        sprites = [pygame.image.fromstring(image.tobytes(), (self._length, self._length), 'RGBA') for image in rezied]
         return sprites[idx1:idx2]
 
     def _getDestination(self, layout: object, pacman: object) -> tuple:
@@ -156,13 +156,13 @@ class Pinky(Ghost):
         super().__init__(pixelPos, cornerPos, sql)
         self._animations = super()._loadGhosts(8, 16)
 
-        self.facing = [0, 0] # tracks pacman facing instead of direction
+        self.facing = [0, 0] # tracks pacman facing instead of _directionection
 
 
     # Finds position 4 tile ahead of pacman
     def _getDestination(self, layout: object, pacman: object) -> tuple:
-        if pacman.dir != [0, 0]:
-            self.facing = pacman.dir
+        if pacman.direction != [0, 0]:
+            self.facing = pacman.direction
 
         pacGridPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
         for i in range(4, -1, -1):

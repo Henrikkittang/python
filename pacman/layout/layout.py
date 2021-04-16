@@ -14,9 +14,9 @@ class Layout(object):
     def _readMapFromFiles(self):
         with open('layout/map.json', 'r') as jsonFile:
             data = json.load(jsonFile)
-            self._width = data['config']['screen_w']
+            self._width  = data['config']['screen_w']
             self._height = data['config']['screen_h']
-            self._sql = data['config']['square_length']
+            self._sql    = data['config']['square_length']
             self._pellets = set(tuple(x) for x in data['pelletLayout'])
             self._walls = [[0 for i in range(self._height//self._sql)] for j in range(self._width//self._sql)] 
 
@@ -37,7 +37,6 @@ class Layout(object):
             return True
 
     def getWalls(self) -> list: return self._walls
-
     def getWidth(self) -> int: return self._width
     def getHeight(self) -> int: return self._height
     def getSql(self) -> int: return self._sql

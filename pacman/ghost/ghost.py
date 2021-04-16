@@ -1,6 +1,7 @@
 from math import sqrt
 from random import randint
 from enum import Enum
+from ghost.sprites import ImageCroper
 import pygame
 pygame.init()
 
@@ -12,18 +13,18 @@ class Mode(Enum):
 class Ghost(object):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         self.x, self.y = pixelPos
-        self.corner = self.getGridPos(cornerPos[0], cornerPos[1], sql)
+        self._corner = self.getGridPos(cornerPos[0], cornerPos[1], sql)
         self.length = sql-3
         self.speed = 120
         self.dir = (0, 0)
         self._animation_counter = 0
         self.counter = 0
-        self.mode = Mode.CHASE
+        self._mode = Mode.CHASE
         self._frighend_mode_animation = (
             pygame.image.load('ghost/textures/frightend1.png'),
             pygame.image.load('ghost/textures/frightend2.png'),
         )
-        
+    
     def draw(self, wn, dt: float) -> None:
         self._animation_counter += dt
 
@@ -38,16 +39,15 @@ class Ghost(object):
             (0,  1): (self._animations[6], self._animations[7]),
         }
         
-        if self.mode == Mode.CHASE or self.mode == Mode.SCATTER:
+        if self._mode == Mode.CHASE or self._mode == Mode.SCATTER:
             wn.blit(directions[self.dir][idx], (self.x, self.y))
     
-        elif self.mode == Mode.FRIGHTEND:
+        elif self._mode == Mode.FRIGHTEND:
             wn.blit(self._frighend_mode_animation[idx], (self.x, self.y))
 
     def getGridPos(self, x: float, y: float, sql: int) -> list:
         return (int(x//sql), int(y//sql))
 
-    
     def move(self, layout: object, pacman: object, dt: float):
         # Check that ghost is fully inside square
             # Find available tiles
@@ -60,19 +60,19 @@ class Ghost(object):
         if self._insideTile(layout) and self.counter > 0.030:
             self.counter = 0
 
-            tiles = self._find_tiles(layout)
+            tiles = self._findTiles(layout)
 
-            if self.mode == Mode.CHASE:
+            if self._mode == Mode.CHASE:
                 target = self._getDestination(layout, pacman)
                 tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
                 self._setDirection(layout, tiles[0])
 
-            elif self.mode == Mode.FRIGHTEND:
+            elif self._mode == Mode.FRIGHTEND:
                 idx = randint(0, len(tiles)-1)
                 self._setDirection(layout, tiles[idx])
 
-            elif self.mode == Mode.SCATTER:
-                target = self.corner
+            elif self._mode == Mode.SCATTER:
+                target = self._corner
                 tiles.sort(key = lambda tile: self.dist(tile[0], tile[1], target[0], target[1]))
                 self._setDirection(layout, tiles[0])
 
@@ -81,7 +81,7 @@ class Ghost(object):
         
 
 
-    def _find_tiles(self, layout):
+    def _findTiles(self, layout):
         # Find all tiles that are not walls
         # Remove tile behind ghost
 
@@ -126,6 +126,15 @@ class Ghost(object):
 
         gridCorners = [self.getGridPos(x[0], x[1], layout.getSql()) for x in corners ]
         return all(x==gridCorners[0] for x in gridCorners)
+    
+    def _loadGhosts(self, idx1, idx2):
+        baseImage = ImageCroper.loadImage('ghost/textures/spritesheet.png')
+        transparent = ImageCroper.makeTransparant(baseImage, (0, 0, 0))
+        croped = ImageCroper.crop(transparent, 14, 14, 2)
+        rezied = [ImageCroper.resize(x, 22, 22) for x in croped]
+        
+        sprites = [pygame.image.fromstring(image.tobytes(), (self.length, self.length), 'RGBA') for image in rezied]
+        return sprites[idx1:idx2]
 
     def _getDestination(self, layout: object, pacman: object) -> tuple:
         raise NotImplementedError() # Making the function kinda virtual
@@ -135,16 +144,8 @@ class Ghost(object):
 class Blinky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
-        self._animations = (
-            pygame.image.load('ghost/textures/blinky_right1.png'),
-            pygame.image.load('ghost/textures/blinky_right2.png'),
-            pygame.image.load('ghost/textures/blinky_left1.png'),
-            pygame.image.load('ghost/textures/blinky_left2.png'),
-            pygame.image.load('ghost/textures/blinky_up1.png'),
-            pygame.image.load('ghost/textures/blinky_up2.png'),
-            pygame.image.load('ghost/textures/blinky_down1.png'),
-            pygame.image.load('ghost/textures/blinky_down2.png'),
-        )
+        self._animations = super()._loadGhosts(0, 8)
+        
     # Chases pacman exact position
     def _getDestination(self, layout: object, pacman: object) -> tuple:
         return pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
@@ -153,16 +154,8 @@ class Blinky(Ghost):
 class Pinky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
-        self._animations = (
-            pygame.image.load('ghost/textures/pinky_right1.png'),
-            pygame.image.load('ghost/textures/pinky_right2.png'),
-            pygame.image.load('ghost/textures/pinky_left1.png'),
-            pygame.image.load('ghost/textures/pinky_left2.png'),
-            pygame.image.load('ghost/textures/pinky_up1.png'),
-            pygame.image.load('ghost/textures/pinky_up2.png'),
-            pygame.image.load('ghost/textures/pinky_down1.png'),
-            pygame.image.load('ghost/textures/pinky_down2.png'),
-        )
+        self._animations = super()._loadGhosts(8, 16)
+
         self.facing = [0, 0] # tracks pacman facing instead of direction
 
 
@@ -183,16 +176,8 @@ class Inky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
         self.blinkyPos = (0, 0)
-        self._animations = (
-            pygame.image.load('ghost/textures/inky_right1.png'),
-            pygame.image.load('ghost/textures/inky_right2.png'),
-            pygame.image.load('ghost/textures/inky_left1.png'),
-            pygame.image.load('ghost/textures/inky_left2.png'),
-            pygame.image.load('ghost/textures/inky_up1.png'),
-            pygame.image.load('ghost/textures/inky_up2.png'),
-            pygame.image.load('ghost/textures/inky_down1.png'),
-            pygame.image.load('ghost/textures/inky_down2.png'),
-        )
+        self._animations = super()._loadGhosts(16, 24)
+
 
     def setBlinkyPosition(self, blinkyPos: tuple) -> None:
         self.blinkyPos = blinkyPos
@@ -211,16 +196,8 @@ class Inky(Ghost):
 class Clyde(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
-        self._animations = (
-            pygame.image.load('ghost/textures/clyde_right1.png'),
-            pygame.image.load('ghost/textures/clyde_right2.png'),
-            pygame.image.load('ghost/textures/clyde_left1.png'),
-            pygame.image.load('ghost/textures/clyde_left2.png'),
-            pygame.image.load('ghost/textures/clyde_up1.png'),
-            pygame.image.load('ghost/textures/clyde_up2.png'),
-            pygame.image.load('ghost/textures/clyde_down1.png'),
-            pygame.image.load('ghost/textures/clyde_down2.png'),
-        )
+        self._animations = super()._loadGhosts(24, 32)
+
     # Same as blinkey, but runs to corner when close to pacman
     def _getDestination(self, layout: object, pacman: object) -> tuple:
         pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
@@ -228,7 +205,7 @@ class Clyde(Ghost):
 
         dist = sqrt((selfPos[0] - pacPos[0])**2 + (selfPos[1] - pacPos[1])**2)
 
-        return (self.corner if dist < 8 else pacPos)
+        return (self._corner if dist < 8 else pacPos)
         
 
 

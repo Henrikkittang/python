@@ -7,14 +7,10 @@ pygame.init()
 
 if __name__ == '__main__':
     clock = pygame.time.Clock()
-
     layout = Layout()
 
     window = pygame.display.set_mode((layout.getWidth(), layout.getHeight()))
-
     pacman = Pacman(200, 300, layout.getSql())
-
-
     ghosts = [
         Blinky((351, 251), (525, 25 ), layout.getSql()),
         Pinky ((350, 250), (25 , 25 ), layout.getSql()),

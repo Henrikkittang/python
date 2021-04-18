@@ -1,7 +1,7 @@
 from math import sqrt
 from random import randint
 from enum import Enum
-from ghost.sprites import ImageCroper
+from sprite.sprite import ImageCroper
 import pygame
 pygame.init()
 
@@ -86,16 +86,13 @@ class Ghost(object):
         # Remove tile behind ghost
 
         tiles = []
-        gridPos = self.getGridPos(self.x, self.y, layout.getSql())
+        gridPos = self.getGridPos(self.x, self.y, layout.sql)
         if not layout.isWall(gridPos[0]+1, gridPos[1]):
             tiles.append( (gridPos[0]+1, gridPos[1]) )
-
         if not layout.isWall(gridPos[0]-1, gridPos[1]):
             tiles.append( (gridPos[0]-1, gridPos[1]) )
-
         if not layout.isWall(gridPos[0], gridPos[1]+1):
             tiles.append( (gridPos[0], gridPos[1]+1) )
-
         if not layout.isWall(gridPos[0], gridPos[1]-1):
             tiles.append( (gridPos[0], gridPos[1]-1) )
       
@@ -109,7 +106,7 @@ class Ghost(object):
         return sqrt((x2-x1)**2 + (y2-y1)**2)
 
     def _setDirection(self, layout, nextTile: tuple) -> None:
-        gridPos = self.getGridPos(self.x, self.y, layout.getSql())
+        gridPos = self.getGridPos(self.x, self.y, layout.sql)
 
         if   gridPos[0] > nextTile[0]: self._direction = (-1,  0)
         elif gridPos[0] < nextTile[0]: self._direction = ( 1,  0)
@@ -124,15 +121,15 @@ class Ghost(object):
             (self.x+self._length, self.y+self._length) # Bottom right
         )
 
-        gridCorners = [self.getGridPos(x[0], x[1], layout.getSql()) for x in corners ]
+        gridCorners = [self.getGridPos(x[0], x[1], layout.sql) for x in corners ]
         return all(x==gridCorners[0] for x in gridCorners)
     
-    def _loadGhosts(self, idx1: int, idx2: int) -> list:
+    def _loadSprites(self, idx1: int, idx2: int) -> list:
         baseImage   = ImageCroper.loadImage('ghost/textures/spritesheet.png')
         transparent = ImageCroper.makeTransparant(baseImage, (0, 0, 0))
         croped      = ImageCroper.crop(transparent, 14, 14, 2)
-        rezied      = [ImageCroper.resize(x, 22, 22) for x in croped]
-        
+        rezied      = [ImageCroper.resize(x, self._length, self._length) for x in croped]
+
         sprites = [pygame.image.fromstring(image.tobytes(), (self._length, self._length), 'RGBA') for image in rezied]
         return sprites[idx1:idx2]
 
@@ -144,17 +141,17 @@ class Ghost(object):
 class Blinky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
-        self._animations = super()._loadGhosts(0, 8)
+        self._animations = super()._loadSprites(0, 8)
         
     # Chases pacman exact position
     def _getDestination(self, layout: object, pacman: object) -> tuple:
-        return pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
+        return pacman.getGridPos(pacman.x, pacman.y, layout.sql)
 
 
 class Pinky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
-        self._animations = super()._loadGhosts(8, 16)
+        self._animations = super()._loadSprites(8, 16)
 
         self.facing = [0, 0] # tracks pacman facing instead of _directionection
 
@@ -164,27 +161,25 @@ class Pinky(Ghost):
         if pacman.direction != [0, 0]:
             self.facing = pacman.direction
 
-        pacGridPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
-        for i in range(4, -1, -1):
-            row    = pacGridPos[0] + self.facing[0] * i
-            column = pacGridPos[1] + self.facing[1] * i
-            if not layout.isWall(row, column):
-                return (row, column)
-        return pacGridPos 
+        pacGridPos = pacman.getGridPos(pacman.x, pacman.y, layout.sql)
+        row    = pacGridPos[0] + self.facing[0] * 4
+        column = pacGridPos[1] + self.facing[1] * 4
+
+        return (row, column)
 
 class Inky(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
         self.blinkyPos = (0, 0)
-        self._animations = super()._loadGhosts(16, 24)
+        self._animations = super()._loadSprites(16, 24)
 
 
     def setBlinkyPosition(self, blinkyPos: tuple) -> None:
         self.blinkyPos = blinkyPos
 
     def _getDestination(self, layout: object, pacman: object) -> tuple:
-        pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
-        # gridPos = self.getGridPos(self.x, self.y, layout.getSql())
+        pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.sql)
+        # gridPos = self.getGridPos(self.x, self.y, layout.sql)
 
         vect = [self.blinkyPos[0]-pacPos[0], self.blinkyPos[1]-pacPos[1]]
         vect = [-x for x in vect]
@@ -196,12 +191,12 @@ class Inky(Ghost):
 class Clyde(Ghost):
     def __init__(self, pixelPos: tuple, cornerPos: tuple, sql: int):
         super().__init__(pixelPos, cornerPos, sql)
-        self._animations = super()._loadGhosts(24, 32)
+        self._animations = super()._loadSprites(24, 32)
 
     # Same as blinkey, but runs to corner when close to pacman
     def _getDestination(self, layout: object, pacman: object) -> tuple:
-        pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.getSql())
-        selfPos = super().getGridPos(self.x, self.y, layout.getSql())
+        pacPos = pacman.getGridPos(pacman.x, pacman.y, layout.sql)
+        selfPos = super().getGridPos(self.x, self.y, layout.sql)
 
         dist = sqrt((selfPos[0] - pacPos[0])**2 + (selfPos[1] - pacPos[1])**2)
 

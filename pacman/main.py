@@ -5,24 +5,26 @@ import pygame
 pygame.init()
 
 
-if __name__ == '__main__':
+
+
+#if __name__ == '__main__':
+def main():
     clock = pygame.time.Clock()
     layout = Layout()
 
-    window = pygame.display.set_mode((layout.getWidth(), layout.getHeight()))
-    pacman = Pacman(200, 300, layout.getSql())
+    window = pygame.display.set_mode((layout.width, layout.height))
+    pacman = Pacman(200, 300, layout.sql)
     ghosts = [
-        Blinky((351, 251), (525, 25 ), layout.getSql()),
-        Pinky ((350, 250), (25 , 25 ), layout.getSql()),
-        Inky  ((150, 275), (525, 525), layout.getSql()),
-        Clyde ((351, 251), (25 , 525), layout.getSql()),    
+        Blinky((351, 251), (525, 25 ), layout.sql),
+        Pinky ((350, 250), (25 , 25 ), layout.sql),
+        Inky  ((150, 275), (525, 525), layout.sql),
+        Clyde ((351, 251), (25 , 525), layout.sql),    
     ]
 
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
-
 
         window.fill((0, 0, 0))
         dt = clock.tick() / 1000
@@ -36,10 +38,26 @@ if __name__ == '__main__':
 
         for ghost in ghosts:
             if isinstance(ghost, Inky):
-                ghost.setBlinkyPosition(ghosts[0].getGridPos(ghosts[0].x, ghosts[0].y, layout.getSql()))
+                ghost.setBlinkyPosition(ghosts[0].getGridPos(ghosts[0].x, ghosts[0].y, layout.sql))
             ghost.move(layout, pacman, dt)
             ghost.draw(window, dt)
 
 
         pygame.display.update()
+
+main()
+quit()
+
+
+import cProfile
+import pstats
+
+cProfile.run('main()', 'profile_results')
+
+file = open('formatted_profile.txt', 'w')
+profile = pstats.Stats('.\profile_results', stream=file)
+profile.sort_stats('cumulative') # Sorts the result according to the supplied criteria
+profile.print_stats(35) # Prints the first 15 lines of the sorted report
+file.close()
+
 

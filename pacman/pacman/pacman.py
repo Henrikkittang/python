@@ -1,6 +1,6 @@
 import math
-
 from layout.layout import Layout
+from sprite.sprite import ImageCroper
 import pygame
 pygame.init()
 
@@ -8,18 +8,24 @@ class Pacman(object):
     def __init__(self, x, y, sql):
         self.x = x
         self.y = y
-        self._length = sql-1
+        self._length = sql-3
         self._direction = [0, 0]
         self._speed = 150
         self._score = 0
         self._animationCounter = 0
-        self._animations = [
-            pygame.image.load('pacman/textures/pac1.png'),
-            pygame.image.load('pacman/textures/pac2.png'),
-            pygame.image.load('pacman/textures/pac3.png'),
-            pygame.image.load('pacman/textures/pac2.png')
-        ]
+        self._animations = self._loadSprites()
         self._font    = pygame.font.SysFont(" ", 30, True)
+
+    def _loadSprites(self):
+        baseImage   = ImageCroper.loadImage('pacman/textures/pacman.png')
+        transparent = ImageCroper.makeTransparant(baseImage, (0, 0, 0))
+        croped      = ImageCroper.crop(transparent, 32, 32, 0)
+        rezied      = [ImageCroper.resize(x, self._length, self._length) for x in croped]
+        
+        sprites = [pygame.image.fromstring(image.tobytes(), (self._length, self._length), 'RGBA') for image in rezied]
+        sprites.reverse()
+        sprites.append(sprites[1])
+        return sprites
 
     @property
     def direction(self):
@@ -36,8 +42,7 @@ class Pacman(object):
         self._animationCounter += dt
         idx = int(self._animationCounter // 0.05)
         if idx >= len(self._animations): 
-            self._animationCounter = 0
-            idx = 0
+            idx = self._animationCounter = 0
 
         rotation = math.degrees( -math.atan2(self._direction[1], self._direction[0]) )  
         rotated_texture = pygame.transform.rotate(self._animations[idx], rotation)
@@ -47,20 +52,20 @@ class Pacman(object):
         keys = pygame.key.get_pressed()
 
         # _nextTileIsFree makes sure pacman before he hits end of corridor
-        if keys[pygame.K_DOWN] and self._nextTileIsFree(0, 1, layout):
+        if keys[pygame.K_DOWN] and self._nextTileIsFree(0, 1, layout) and self.direction != [0, 1]:
             self._direction = [0, 1]
-        elif keys[pygame.K_UP] and self._nextTileIsFree(0, -1, layout):
+        elif keys[pygame.K_UP] and self._nextTileIsFree(0, -1, layout) and self.direction != [0, -1]:
             self._direction = [0, -1]
-        elif keys[pygame.K_RIGHT] and self._nextTileIsFree(1, 0, layout):
+        elif keys[pygame.K_RIGHT] and self._nextTileIsFree(1, 0, layout) and self.direction != [1, 0]:
             self._direction = [1, 0]
-        elif keys[pygame.K_LEFT] and self._nextTileIsFree(-1, 0, layout):
+        elif keys[pygame.K_LEFT] and self._nextTileIsFree(-1, 0, layout) and self.direction != [-1, 0]:
             self._direction = [-1, 0]
 
         self.x += self._direction[0] * self._speed * dt
         self.y += self._direction[1] * self._speed * dt
 
     def eat(self, layout) -> None:
-        row, column = self.getGridPos(self.x, self.y, layout.getSql())
+        row, column = self.getGridPos(self.x, self.y, layout.sql)
         if layout.eatPellet(row, column):
             self._score += 1
 
@@ -76,22 +81,22 @@ class Pacman(object):
         ]
 
         for corner in corners:
-            row, column = self.getGridPos(corner[0], corner[1], layout.getSql())
+            row, column = self.getGridPos(corner[0], corner[1], layout.sql)
             if layout.isWall(row, column): # Detection
 
                 # Resolution
                 if self._direction[0] == 1:
-                    wallPixelPosX = int(row * layout.getSql()) 
+                    wallPixelPosX = int(row * layout.sql) 
                     self.x = wallPixelPosX - self._length   - 0.01
                 elif self._direction[0] == -1:
-                    wallPixelPosX = int(row * layout.getSql()) 
-                    self.x = wallPixelPosX + layout.getSql() + 0.01
+                    wallPixelPosX = int(row * layout.sql) 
+                    self.x = wallPixelPosX + layout.sql + 0.01
                 elif self._direction[1] == 1:
-                    wallPixelPosX = int(column * layout.getSql()) 
+                    wallPixelPosX = int(column * layout.sql) 
                     self.y = wallPixelPosX - self._length  - 0.01
                 elif self._direction[1] == -1:
-                    wallPixelPosY = int(column * layout.getSql()) 
-                    self.y = wallPixelPosY + layout.getSql() + 0.01
+                    wallPixelPosY = int(column * layout.sql) 
+                    self.y = wallPixelPosY + layout.sql + 0.01
 
                 self._direction = [0, 0]
                 break
@@ -106,7 +111,7 @@ class Pacman(object):
         )
         
         for corner in corners:
-            row, column = self.getGridPos(corner[0], corner[1], layout.getSql())
+            row, column = self.getGridPos(corner[0], corner[1], layout.sql)
             row += x_direction
             column += y_direction
             if layout.isWall(row, column):

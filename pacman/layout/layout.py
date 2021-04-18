@@ -9,7 +9,12 @@ class Layout(object):
         self._width = 0
         self._height = 0
         self._sql = 0
+        
         self._readMapFromFiles()
+
+        self._wallsSurface = pygame.Surface((self._width, self._height))
+        self._makeWallSurface()
+
 
     def _readMapFromFiles(self):
         with open('layout/map.json', 'r') as jsonFile:
@@ -23,6 +28,12 @@ class Layout(object):
             for pos in data['wallLayout']:
                 self._walls[ pos[1] ][ pos[0] ] = 1
 
+    def _makeWallSurface(self):
+        for row in range(len(self._walls)):
+            for column in range(len(self._walls[row])):
+                if self.isWall(column, row):
+                    pygame.draw.rect(self._wallsSurface, (40, 60, 235), (column*self._sql, row*self._sql, self._sql, self._sql))
+
     def eatPellet(self, row: int, column: int) -> bool:
         if (row, column) in self._pellets:
             self._pellets.discard((row, column))
@@ -30,23 +41,22 @@ class Layout(object):
         return False
 
     def isWall(self, row: int, column: int) -> bool:
-        if row < 0 or column < 0: return True
-        try:
-            return bool(self._walls[column][row])
-        except IndexError:
-            return True
+        if row < 0 or row > (self._width // self._sql)-1: return True
+        elif column < 0 or column > (self._height // self._sql)-1: return True
+        else: return bool(self._walls[column][row])
 
-    def getWalls(self) -> list: return self._walls
-    def getWidth(self) -> int: return self._width
-    def getHeight(self) -> int: return self._height
-    def getSql(self) -> int: return self._sql
-
+        
+    @property
+    def walls(self) -> list: return self._walls
+    @property 
+    def width(self) -> int: return self._width
+    @property 
+    def height(self) -> int: return self._height
+    @property 
+    def sql(self) -> int: return self._sql
 
     def draw(self, wn) -> None:
-        for row in range(len(self._walls)):
-            for column in range(len(self._walls[row])):
-                if self.isWall(column, row):
-                    pygame.draw.rect(wn, (40, 60, 235), (column*self._sql, row*self._sql, self._sql, self._sql))
+        wn.blit(self._wallsSurface, (0, 0))
 
         for pos in self._pellets:
             pygame.draw.circle(wn, (255, 255, 0), (pos[0]*self._sql + self._sql//2, pos[1]*self._sql + self._sql//2) ,3)

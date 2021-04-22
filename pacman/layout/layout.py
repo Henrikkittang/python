@@ -5,6 +5,7 @@ pygame.init()
 class Layout(object):
     def __init__(self):
         self._pellets = set()
+        self._powerPellets = set()
         self._walls = []
         self._width = 0
         self._height = 0
@@ -23,6 +24,7 @@ class Layout(object):
             self._height = data['config']['screen_h']
             self._sql    = data['config']['square_length']
             self._pellets = set(tuple(x) for x in data['pelletLayout'])
+            self._powerPellets = set(tuple(x) for x in data['powerPelletLayout'])
             self._walls = [[0 for i in range(self._height//self._sql)] for j in range(self._width//self._sql)] 
 
             for pos in data['wallLayout']:
@@ -37,6 +39,12 @@ class Layout(object):
     def eatPellet(self, row: int, column: int) -> bool:
         if (row, column) in self._pellets:
             self._pellets.discard((row, column))
+            return True
+        return False
+
+    def eatPowerPellet(self, row: int, column: int) -> bool:
+        if (row, column) in self._powerPellets:
+            self._powerPellets.discard((row, column))
             return True
         return False
 
@@ -61,6 +69,9 @@ class Layout(object):
         for pos in self._pellets:
             pygame.draw.circle(wn, (255, 255, 0), (pos[0]*self._sql + self._sql//2, pos[1]*self._sql + self._sql//2) ,3)
 
+        for pos in self._powerPellets:
+            pygame.draw.circle(wn, (180,180,255),(pos[0]*self._sql + self._sql//2, pos[1]*self._sql + self._sql//2) , 6)
+      
 
 if __name__ == '__main__':
     l = Layout()

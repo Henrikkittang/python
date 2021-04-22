@@ -48,6 +48,7 @@ class Pacman(object):
         rotated_texture = pygame.transform.rotate(self._animations[idx], rotation)
         
         wn.blit(rotated_texture, (self.x, self.y))
+
     def move(self, layout, dt: float) -> None:
         keys = pygame.key.get_pressed()
 
@@ -68,6 +69,24 @@ class Pacman(object):
         row, column = self.getGridPos(self.x, self.y, layout.sql)
         if layout.eatPellet(row, column):
             self._score += 1
+
+    def eatPowerPellet(self, layout) -> bool:
+        row, column = self.getGridPos(self.x, self.y, layout.sql)
+        if layout.eatPowerPellet(row, column):
+            self._score += 5
+            return True
+        return False
+
+    def eatGhost(self, ghost, layout):
+        pacPos = self.getGridPos(self.x, self.y, layout.sql)
+        ghostPos = ghost.getGridPos(ghost.x, ghost.y, layout.sql)
+        if pacPos == ghostPos:
+            if ghost.isFrightend():
+                ghost.setModeReturn()
+                self._score += 20
+            else:
+                pass
+                # Pacman loses health        
 
     def getGridPos(self, x: float, y: float, sql: int) -> tuple:
         return (int(x//sql), int(y//sql))

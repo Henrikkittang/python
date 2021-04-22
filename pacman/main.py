@@ -18,6 +18,7 @@ if __name__ == '__main__':
     ]
 
     while True:
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 quit()
@@ -30,6 +31,9 @@ if __name__ == '__main__':
         pacman.move(layout, dt)
         pacman.checkColliding(layout)
         pacman.eat(layout)
+        if pacman.eatPowerPellet(layout):
+            [ghost.setModeFrightend() for ghost in ghosts]
+        [pacman.eatGhost(ghost, layout) for ghost in ghosts]        
         pacman.draw(window, dt)
 
         for ghost in ghosts:

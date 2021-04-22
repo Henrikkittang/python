@@ -123,9 +123,7 @@ if __name__ == '__main__':
     pelletEditor = MapEditor('map', 'pelletLayout') 
     powerPelletEditor = MapEditor('map', 'powerPelletLayout') 
 
-
     marker = Marker(wallEditor.getSql())
-
 
     wn = pygame.display.set_mode(( wallEditor.getWidth(),  wallEditor.getHeight()))
 

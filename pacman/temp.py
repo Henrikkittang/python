@@ -44,7 +44,10 @@ class LinkedList(object):
             curNode = curNode.nextNode
 
     def __contains__(self, key):
-        return key in list(self)
+        for x in self:
+            if x == key:
+                return True 
+        return False
        
     def __len__(self) -> int:
         return self._length

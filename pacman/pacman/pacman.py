@@ -70,23 +70,24 @@ class Pacman(object):
         if layout.eatPellet(row, column):
             self._score += 1
 
-    def eatPowerPellet(self, layout) -> bool:
+    def eatPowerPellet(self, layout, ghostWrapper) -> None:
         row, column = self.getGridPos(self.x, self.y, layout.sql)
         if layout.eatPowerPellet(row, column):
             self._score += 5
-            return True
-        return False
+            ghostWrapper.setModeFrightend()
 
-    def eatGhost(self, ghost, layout):
+    def eatGhost(self, layout, ghostWrapper):
         pacPos = self.getGridPos(self.x, self.y, layout.sql)
-        ghostPos = ghost.getGridPos(ghost.x, ghost.y, layout.sql)
-        if pacPos == ghostPos:
-            if ghost.isFrightend():
-                ghost.setModeReturn()
-                self._score += 20
-            else:
-                pass
-                # Pacman loses health        
+
+        for ghost in ghostWrapper._ghosts:
+            ghostPos = ghost.getGridPos(ghost.x, ghost.y, layout.sql)
+            if pacPos == ghostPos:
+                if ghost.isFrightend():
+                    ghost.setModeReturn()
+                    self._score += 20
+                else:
+                    pass
+                    # Pacman loses health        
 
     def getGridPos(self, x: float, y: float, sql: int) -> tuple:
         return (int(x//sql), int(y//sql))

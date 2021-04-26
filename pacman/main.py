@@ -10,8 +10,6 @@ if __name__ == '__main__':
 
     window = pygame.display.set_mode((layout.width, layout.height))
     pacman = Pacman(200, 300, layout.sql)
-    
-    
     ghostWrapper = GhostWrapper((351, 251), layout.sql)
     
     while True:

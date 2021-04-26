@@ -16,7 +16,7 @@ class Pacman(object):
         self._animations = self._loadSprites()
         self._font    = pygame.font.SysFont(" ", 30, True)
 
-    def _loadSprites(self):
+    def _loadSprites(self) -> list:
         baseImage   = ImageCroper.loadImage('pacman/textures/pacman.png')
         transparent = ImageCroper.makeTransparant(baseImage, (0, 0, 0))
         croped      = ImageCroper.crop(transparent, 32, 32, 0)
@@ -31,7 +31,7 @@ class Pacman(object):
     def direction(self):
         return self._direction
 
-    def draw(self, wn, dt):
+    def draw(self, wn: object, dt: int):
         text = self._font.render('_Score: {}'.format(self._score), 1, (255, 255, 0))
         wn.blit(text, (5, 5))
 
@@ -49,7 +49,7 @@ class Pacman(object):
         
         wn.blit(rotated_texture, (self.x, self.y))
 
-    def move(self, layout, dt: float) -> None:
+    def move(self, layout: Layout, dt: float) -> None:
         keys = pygame.key.get_pressed()
 
         # _nextTileIsFree makes sure pacman before he hits end of corridor
@@ -65,18 +65,18 @@ class Pacman(object):
         self.x += self._direction[0] * self._speed * dt
         self.y += self._direction[1] * self._speed * dt
 
-    def eat(self, layout) -> None:
+    def eat(self, layout: Layout) -> None:
         row, column = self.getGridPos(self.x, self.y, layout.sql)
         if layout.eatPellet(row, column):
             self._score += 1
 
-    def eatPowerPellet(self, layout, ghostWrapper) -> None:
+    def eatPowerPellet(self, layout: Layout, ghostWrapper: object) -> None:
         row, column = self.getGridPos(self.x, self.y, layout.sql)
         if layout.eatPowerPellet(row, column):
             self._score += 5
             ghostWrapper.setModeFrightend()
 
-    def eatGhost(self, layout, ghostWrapper):
+    def eatGhost(self, layout: Layout, ghostWrapper: object) -> None:
         pacPos = self.getGridPos(self.x, self.y, layout.sql)
 
         for ghost in ghostWrapper._ghosts:

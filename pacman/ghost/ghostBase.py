@@ -27,12 +27,10 @@ class GhostBase(object):
             pygame.image.load('ghost/textures/frightend2.png'),
         )
         self._eyesSprites = {}
-        self._frightendCounter = 0
 
         self._loadEyes()
 
     def setModeFrightend(self) -> None:
-        self._frightendCounter = 0
         if self._mode != Mode.RETURN:
             self._mode = Mode.FRIGHTEND
             self._speed = 100
@@ -78,9 +76,7 @@ class GhostBase(object):
 
     def move(self, layout: object, pacman: object, dt: float):
         
-        # if isinstance(self, Blinky): print(self._frightendCounter)
-        if self._mode == Mode.FRIGHTEND and self._frightendCounter >= 0.080:
-            self.setModeChase()
+       
 
         gridPos = self.getGridPos(self.x, self.y, layout.sql)
         if self._mode == Mode.RETURN and gridPos == self._start:
@@ -89,7 +85,7 @@ class GhostBase(object):
         self._moveCounter += dt
         if self._insideTile(layout) and self._moveCounter > 0.030:
             self._moveCounter = 0
-
+        
             tiles = self._findTiles(layout)
 
             if self._mode == Mode.CHASE:
@@ -98,7 +94,6 @@ class GhostBase(object):
                 self._setDirection(layout, tiles[0])
 
             elif self._mode == Mode.FRIGHTEND:
-                self._frightendCounter += dt
                 idx = randint(0, len(tiles)-1)
                 self._setDirection(layout, tiles[idx])
 

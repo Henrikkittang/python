@@ -30,7 +30,12 @@ def calc_children(node, grid, diagonal):
     return children_pos
  
 
-def find_path(grid, start_pos, end_pos, diagonal=True):
+def find_path(grid: list, start_pos: tuple, end_pos: tuple, diagonal: bool=True):
+    ''' 
+        Finds the shortes path between start_pos and end_pos in a 2d grid  
+        represented by as a nested list using the A* algorithm. Can by default travel diagonaly
+    '''
+
     cur_node = Node(start_pos)
 
     open_nodes = [cur_node]

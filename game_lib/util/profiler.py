@@ -1,3 +1,5 @@
+import cProfile
+import pstats
 import functools
 import time
 import numpy as np
@@ -34,8 +36,8 @@ def average_time(iterations:int) -> callable:
             print(f"function '{func.__name__}' average time over {iterations} iterations is {np.average(arr)} seconds")
             return value
         return wrapper
-    return decorator
 
+    return decorator
 
 
 def mean_time(iterations:int) -> callable:
@@ -53,9 +55,23 @@ def mean_time(iterations:int) -> callable:
         return wrapper
     return decorator
 
-@mean_time(iterations=2)
-def fun(secs):
-    time.sleep(secs)
 
-fun(0.2)
+def file_profile(maxLineNumber:int=15) -> callable:
+    def decorator(func: callable) -> callable:
+        def wrapper(*args, **kwargs) -> any:
+            filename = 'profile-'  + func.__name__
+            cProfile.run(func.__name__, filename)
+
+            with open(filename + '.txt', 'w') as file:
+                profile = pstats.Stats('./' + filename, stream=file)
+                profile.sort_stats('cumulative') 
+                profile.print_stats(maxLineNumber)
+                file.close()
+        return wrapper
+    return decorator
+
+
+
+
+
 

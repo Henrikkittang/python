@@ -3,17 +3,17 @@ from math import sqrt
 
 
 class Node(object):
-    def __init__(self, position=None, parent=None):
-        self.position = position
-        self.parent = parent
-        self.g = 0  # distance from the starting node
-        self.h = 0  # distance from end node
-        self.f = 0  # h_cost + g_cost
+    def __init__(self, position: tuple=None, parent:Node=None):
+        self.position: tuple = position
+        self.parent: Node = parent
+        self.g: float = 0  # distance from the starting node
+        self.h: float = 0  # distance from end node
+        self.f: float = 0  # h_cost + g_cost
     
     def __lt__(self, other):
         return self.f < other.f
 
-def calc_children(node, grid, diagonal):
+def calc_children(node: Node, grid: list, diagonal: bool):
     cur_pos = node.position
     children_pos = []
     for t in range(-1, 2):
@@ -33,7 +33,7 @@ def calc_children(node, grid, diagonal):
 def find_path(grid: list, start_pos: tuple, end_pos: tuple, diagonal: bool=True):
     ''' 
         Finds the shortes path between start_pos and end_pos in a 2d grid  
-        represented by as a nested list using the A* algorithm. Can by default travel diagonaly
+        represented by as a nested list using the A* algorithm. Can by default search diagonaly
     '''
 
     cur_node = Node(start_pos)

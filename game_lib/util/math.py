@@ -22,7 +22,8 @@ def derivation(func: callable, x: float, dx: float=0.01):
 
 
 def intergrate(func: callable, a: float, b: float, dx: float=0.001):
-    ''' Compute the area under f with step size dx
+    ''' 
+        Compute the area under f with step size dx
         in range of a to b
     '''
     xn = a

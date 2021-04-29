@@ -5,6 +5,11 @@ import time
 import numpy as np
 
 def timer(func: callable) -> callable:
+    ''' 
+        Add to function as decorator.
+        Prints the time it too the function to excecute, measured in seconds,
+        to the console 
+    '''
     functools.wraps(func)
     def inner(*args, **kwargs) -> callable:
         timeStart = time.time()
@@ -15,6 +20,11 @@ def timer(func: callable) -> callable:
     return inner
 
 def repeat(iterations:int) -> callable:
+    ''' 
+        Add to function as decorator.  
+        Runs the function a given number of times. 
+        Can be combiend with the 'timer' function to get more accurate profiling results
+    '''
     def decorator(func) -> callable:
         def wrapper(*args, **kwargs) -> any:
             for _ in range(iterations-1):
@@ -24,6 +34,10 @@ def repeat(iterations:int) -> callable:
     return decorator
 
 def average_time(iterations:int) -> callable:
+    ''' 
+        Add to function as decorator.
+        Prints the average time the function took to execute over x iterations to the console
+    '''
     def decorator(func: callable) -> callable:
         def wrapper(*args, **kwargs) -> any:
             arr = np.zeros(iterations)
@@ -41,6 +55,10 @@ def average_time(iterations:int) -> callable:
 
 
 def mean_time(iterations:int) -> callable:
+    ''' 
+        Add to function as decorator.
+        Prints the mean time the function took to execute over x iterations to the console
+    '''
     def decorator(func: callable) -> callable:
         def wrapper(*args, **kwargs) -> any:
             arr = np.zeros(iterations)
@@ -57,6 +75,11 @@ def mean_time(iterations:int) -> callable:
 
 
 def file_profile(maxLineNumber:int=15) -> callable:
+    ''' 
+        Add to function as decorator.
+        Profiles the function with cProfile and saves the result 
+        to readable text file with the function's name, prefixed with 'profile-'
+    '''
     def decorator(func: callable) -> callable:
         def wrapper(*args, **kwargs) -> any:
             filename = 'profile-'  + func.__name__

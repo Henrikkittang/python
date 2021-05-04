@@ -32,7 +32,7 @@ class SpaceInvaders(Game):
         self.bullets.move(dt, (self.width, self.height))
         self.bullets.draw(self._window)
 
-        self.invaders.move(dt)
+        self.invaders.move(dt, (self.width, self.height))
         self.invaders.draw(self._window)
 
         for wall in self.walls:

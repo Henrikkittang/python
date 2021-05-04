@@ -22,7 +22,6 @@ def volum(func, a, b, n):
 def f(x):
     return x**2 - 2
 
-print(4 << 2)
 print(intergral(f, 2, 5, 1000000))
 
 

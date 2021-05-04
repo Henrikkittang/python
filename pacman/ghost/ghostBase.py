@@ -3,7 +3,6 @@ from random import randint
 from enum import Enum
 from sprite.sprite import ImageCroper
 import pygame
-pygame.init()
 
 class Mode(Enum):
     CHASE = 1
@@ -171,7 +170,7 @@ class GhostBase(object):
             (0, -1): temp[2],
             (0,  1): temp[3],
         }
-
+    
     def _loadSprites(self, idx1: int, idx2: int) -> list:
         baseImage   = ImageCroper.loadImage('ghost/textures/spritesheet.png')
         transparent = ImageCroper.makeTransparant(baseImage, (0, 0, 0))

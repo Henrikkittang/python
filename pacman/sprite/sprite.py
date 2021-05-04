@@ -42,3 +42,4 @@ class ImageCroper(object):
         [x.save(path+str(idx)+'.png') for idx, x in enumerate(images)]
 
 
+

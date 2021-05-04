@@ -5,7 +5,6 @@ class ImageCroper(object):
     
     @staticmethod
     def loadImage(path: str) -> Image:
-        print(path)
         return Image.open(path)
 
     @staticmethod

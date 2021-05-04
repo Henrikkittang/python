@@ -66,3 +66,8 @@ def createUniqe(a: int, b: int) -> int:
     return  (a + b)*(a + b + 1)/2 + b;
 
 
+def rotationR(x: float, y: float) -> float:
+    return math.atan2(y, x) 
+def rotationD(x: float, y: float) -> float:
+    return math.degrees( rotationR(x, y) )
+

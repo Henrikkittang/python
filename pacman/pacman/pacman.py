@@ -2,7 +2,6 @@ import math
 from layout.layout import Layout
 from sprite.sprite import ImageCroper
 import pygame
-pygame.init()
 
 class Pacman(object):
     def __init__(self, x, y, sql):
@@ -32,7 +31,7 @@ class Pacman(object):
         return self._direction
 
     def draw(self, wn: object, dt: int):
-        text = self._font.render('_Score: {}'.format(self._score), 1, (255, 255, 0))
+        text = self._font.render('Score: {}'.format(self._score), 1, (255, 255, 0))
         wn.blit(text, (5, 5))
 
         if self._direction == [0, 0]:

@@ -6,6 +6,7 @@ class Entity(object):
         self.y = y
         self._width = width
         self._height = height
+        self._di
         self._speed = speed
 
     def getRect(self) -> tuple:

@@ -1,4 +1,6 @@
 from game_lib.animation.counter import Counter
+from game_lib.collision.aabb import aabb
+from game_lib.util.math import distance
 import pygame
 
 
@@ -41,7 +43,16 @@ class Invaders(object):
             else:
                 for idx, position in enumerate(self._positions):
                     self._positions[idx][0] += self._speed
-                 
+
+
+    def bulletCollision(self, bullets):
+        for idx2, position in enumerate(self._positions):
+            for idx1, bullet in enumerate(bullets):
+                if aabb(bullet.getRect(), (*position, self._width, self._height)):
+                    bullets.popBullet(idx1)
+                    self._positions.pop(idx2)
+
+
                 
 
     

@@ -20,8 +20,8 @@ class Wall(object):
                 ))
 
     def bulletCollision(self, bullets):
-        for idx, bulletPos in enumerate(bullets):
-            temp = (bulletPos[0]//self._sql*self._sql, bulletPos[1]//self._sql*self._sql)
+        for idx, bullet in enumerate(bullets):
+            temp = (bullet.x//self._sql*self._sql, bullet.y//self._sql*self._sql)
             if temp in self._blocks:
                 self._blocks.remove(temp)
                 bullets.popBullet(idx)

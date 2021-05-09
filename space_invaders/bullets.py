@@ -4,14 +4,19 @@ class Bullet(object):
     def __init__(self, x, y, direction):
         self.x = x 
         self.y = y
+        self._width = 5
+        self._height = 15
         self._direction = direction
         self._speed = 500
     
     def getRect(self) -> tuple:
-        return (self.x, self.y, self.width, self.height)
+        '''
+            Gets bounding rectangle formated as (x, y, width, height)
+        '''
+        return (self.x, self.y, self._width, self._height)
 
     def draw(self, wn: object) -> None:
-        pygame.draw.rect(wn, (0, 255, 0), (self.x, self.y, 5, 15))
+        pygame.draw.rect(wn, (0, 255, 0), self.getRect())
 
     def move(self, dt: float) -> None:
         self.x += self._speed * self._direction[0] * dt 
@@ -24,7 +29,7 @@ class Bullets():
 
     def __iter__(self):
         for bullet in self._bullets:
-            yield (bullet.x, bullet.y)
+            yield bullet
 
     def draw(self, wn: object) -> None:
         [bullet.draw(wn) for bullet in self._bullets]

@@ -26,19 +26,21 @@ class SpaceInvaders(Game):
 
     def update(self, dt):
         self.defender.move(dt)
-        self.defender.draw(self._window)
         self.defender.shoot(self.bullets, dt)
+        self.defender.bulletCollision(self.bullets)
+        self.defender.draw(self._window)
+
+        self.invaders.move(dt, (self.width, self.height))
+        self.invaders.bulletCollision(self.bullets)
+        self.invaders.shoot(self.bullets, dt)
+        self.invaders.draw(self._window)
 
         self.bullets.move(dt, (self.width, self.height))
         self.bullets.draw(self._window)
 
-        self.invaders.move(dt, (self.width, self.height))
-        self.invaders.bulletCollision(self.bullets)
-        self.invaders.draw(self._window)
-
         for wall in self.walls:
-            wall.draw(self._window)
             wall.bulletCollision(self.bullets)
+            wall.draw(self._window)
 
 if __name__ == '__main__':
     spaceInvaders = SpaceInvaders()

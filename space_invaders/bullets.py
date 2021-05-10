@@ -30,6 +30,7 @@ class Bullets():
     def __iter__(self):
         for bullet in self._bullets:
             yield bullet
+            
 
     def draw(self, wn: object) -> None:
         [bullet.draw(wn) for bullet in self._bullets]
@@ -40,10 +41,10 @@ class Bullets():
             if bullet.y < 0 or bullet.y > screenDimensions[1]:
                 self._bullets.pop(idx)
 
-    def addBullet(self, x, y, direction: tuple) -> None:
+    def addBullet(self, x: float, y: float, direction: tuple) -> None:
         self._bullets.append( Bullet(x, y, direction) )
 
-    def popBullet(self, idx):
+    def popBullet(self, idx: int) -> None:
         self._bullets.pop(idx)
 
 

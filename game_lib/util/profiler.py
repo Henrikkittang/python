@@ -33,7 +33,7 @@ def repeat(iterations:int) -> callable:
         return wrapper
     return decorator
 
-def average_time(iterations:int) -> callable:
+def averageTime(iterations:int) -> callable:
     ''' 
         Add to function as decorator.
         Prints the average time the function took to execute over x iterations to the console
@@ -54,7 +54,7 @@ def average_time(iterations:int) -> callable:
     return decorator
 
 
-def mean_time(iterations:int) -> callable:
+def meanTime(iterations:int) -> callable:
     ''' 
         Add to function as decorator.
         Prints the mean time the function took to execute over x iterations to the console
@@ -74,7 +74,7 @@ def mean_time(iterations:int) -> callable:
     return decorator
 
 
-def file_profile(maxLineNumber:int=15) -> callable:
+def fileProfile(maxLineNumber:int=15) -> callable:
     ''' 
         Add to function as decorator.
         Profiles the function with cProfile and saves the result 

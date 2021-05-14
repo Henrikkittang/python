@@ -25,23 +25,17 @@ class SpriteHandler(object):
         return [pygame.image.fromstring(image.tobytes(), (width, height), 'RGBA') for image in self._images]
 
     def _makeTransparant(self, image: Image, colorToChange: tuple) -> Image:
+        colorToChange = (*colorToChange, 0)
         newImage = image.convert('RGBA')
         datas = newImage.getdata()
 
         newData = [None] * len(datas)
         for idx, item in enumerate(datas):
-            # newData[idx] = (255, 255, 255, 0) if *item == *colorToChange else item
-            # if *item == *colorToChange:
-            if item[0] == colorToChange[0] and item[1] == colorToChange[1] and item[2] == colorToChange[2]:
-                newData[idx] = (255, 255, 255, 0) 
-            else:
-                newData[idx] = item
-
+            newData[idx] = (255, 255, 255, 0) if item == colorToChange else item
+            
         newImage.putdata(newData)
         return newImage
 
     def _resize(self, image: Image, width: int, height: int) -> Image:
         return image.resize((width, height))   
-
-
 

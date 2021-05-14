@@ -4,7 +4,7 @@
 class GridWrapper(object):
     def __init__(self, width: int=0, height: int=0):
         self._grid: list = []
-        self.generateGrid(width, height)
+        self.makeGrid(width, height)
 
     def __repr__(self):
         return '\n'.join(str(x) for x in self._grid)
@@ -22,10 +22,10 @@ class GridWrapper(object):
     def grid(self): return self._grid
 
     @staticmethod
-    def getGrid(width: int, height: int, defualtValue: any=0) -> list:
+    def generateGrid(width: int, height: int, defualtValue: any=0) -> list:
         return [[defualtValue for i in range(height)] for j in range(width)] 
 
-    def generateGrid(self, width: int, height: int, defualtValue: any=0) -> None:
+    def makeGrid(self, width: int, height: int, defualtValue: any=0) -> None:
         self._grid = [[defualtValue for i in range(height)] for j in range(width)] 
 
     def getValue(self, row, column) -> any:
@@ -62,14 +62,5 @@ class GridWrapper(object):
 
 
 
-
-
-wraps = GridWrapper()
-wraps.generateGrid(10, 10)
-
-print(wraps.findNeighboursPos(9, 9))
-print(wraps.findNeighboursPos(10, 10))
-print(wraps.findNeighboursPos(0, 0))
-print(wraps.findNeighboursPos(5, 5))
 
 

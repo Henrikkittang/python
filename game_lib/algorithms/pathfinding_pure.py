@@ -1,6 +1,5 @@
 from heapq import heappush, heappop
 from math import sqrt
-from enum import Enum
 
 
 class Node(object):
@@ -97,7 +96,15 @@ class Pathfinding(object):
  
         return self.traversePath(cur_node)
         
-    def AStar(self, heuristicWeight: float=1) -> list:
+    def AStar(self, heuristicWeight: float=1.0) -> list:
+        ''' 
+            Switches between euclidean and manhatten distance based on wether it can
+            travel digagonally. A heuristicWeight of 0 effectivly makes the algorithm
+            behave like Dijkstra and a heuristicWeight of infinity makes it a greedy best first
+            search. Returns a empty list if no path is found
+        '''
+
+
         heuristic = self.euclidean if self._diagonal else self.manhatten
 
         cur_node = Node(self._start)
@@ -108,7 +115,7 @@ class Pathfinding(object):
 
         while cur_node.position != self._end:
             if len(open_nodes) == 0:
-                return None
+                return []
 
             cur_node = heappop(open_nodes)
             open_set.remove(cur_node.position)
@@ -133,9 +140,6 @@ class Pathfinding(object):
                 open_set.add(child.position)
                 
         return self.traversePath(cur_node)
-
-
-
 
 
 
